@@ -1,0 +1,20 @@
+import pynput as pn
+from pynput.keyboard import Key
+import time
+
+def send_cmd(cmd):
+    board = pn.keyboard.Controller()
+    if cmd == "play":
+        board.press(Key.media_play_pause)
+    elif cmd == "mute":
+        board.press(Key.media_volume_mute)
+    elif cmd == "skip5":
+        time.sleep(3)
+        board.press(Key.right)
+    elif cmd == "back5":
+        time.sleep(3)
+        board.press(Key.left)
+
+if __name__ == "__main__":
+    while True:
+        send_cmd(input(f"Command: \n"))
