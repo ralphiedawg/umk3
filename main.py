@@ -1,1 +1,1 @@
-import src.media_controls as controls
+import src.media.media_controls as controls
