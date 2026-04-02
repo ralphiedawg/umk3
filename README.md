@@ -14,12 +14,16 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
 - [x] github repo
 - [x] Basic Media Control Framework
 - [ ] Device Connection Framework
-    - [ ] Simple communication between devices over LAN
+    - [x] Simple communication between devices over LAN
     - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [ ] Determine during heartbeat whether device is playing media
     - [ ] Encryption? Not needed if not relaying currently playing media
 - [ ] Gesture Identification
+    - [ ] Basic Hand Landmarking
+    - [ ] Calculate Current Hand Gesture
+        - [ ] Shaka to wake
+        - [ ] V for volume,
+        - [ ] Palm for play/pause
 - [ ] Tray APP
     - [ ] Killswitch
     - [ ] Set Gesture Server Device
-
