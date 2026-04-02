@@ -14,6 +14,10 @@ def send_cmd(cmd):
     elif cmd == "back5":
         time.sleep(3)
         board.press(Key.left)
+    elif cmd == "skip":
+        board.press(Key.media_next)
+    elif cmd == "rewind":
+        board.press(Key.media_previous)
     else:
         return("Invalid Command")
     return("Command Successful!")
