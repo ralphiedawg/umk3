@@ -1,6 +1,7 @@
 # UMK3 --- The third iteration of the universal media kontroller
 ## General Purpose
 I'm always listening to music or watching youtube on another PC. Instead of having to find the keyboard that I move off of my desk to make space for my laptop, I want to control the media hands-free, via gestures.
+(Robust KDE Connect but gesture-driven)
 ## Stack
 - Fully Python
 - Mediapipe for hand landmark detection, just math for gesture identification
@@ -15,6 +16,7 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
 - [x] Basic Media Control Framework
 - [ ] Device Connection Framework
     - [x] Simple communication between devices over LAN
+    - [ ] Server-Client Agnostic Framework, just a switch for server mode
     - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [ ] Determine during heartbeat whether device is playing media
     - [ ] Encryption? Not needed if not relaying currently playing media
