@@ -1,0 +1,30 @@
+import socket
+if __name__ == "__main__":
+    import media_controls as controls
+else:
+    import src.media.media_controls as controls
+
+class Controller:
+    defaultAddr = '127.0.0.1'
+    defaultPort = 65432
+    def __init__(self, addr=defaultAddr, port=defaultPort):
+        self.addr = addr
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.addr, self.port))
+
+    def send_command(self, command: str):
+        encoded = command.encode("utf-8")
+        self.socket.sendall(encoded)
+        data = self.socket.recv(1024)
+        print(f"Received {data!r}")
+
+    @staticmethod
+    def recieve(recieved: bytes):
+        decoded = recieved.decode('utf-8')
+        controls.send_cmd(decoded)
+
+if __name__ == "__main__":
+    ctl = Controller()
+    while True:
+        ctl.send_command(input("Command: "))

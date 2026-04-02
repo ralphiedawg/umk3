@@ -4,7 +4,7 @@ import time
 
 def send_cmd(cmd):
     board = pn.keyboard.Controller()
-    if cmd == "play":
+    if cmd == "pause":
         board.press(Key.media_play_pause)
     elif cmd == "mute":
         board.press(Key.media_volume_mute)
@@ -14,6 +14,9 @@ def send_cmd(cmd):
     elif cmd == "back5":
         time.sleep(3)
         board.press(Key.left)
+    else:
+        return("Invalid Command")
+    return("Command Successful!")
 
 if __name__ == "__main__":
     while True:
