@@ -1,17 +1,16 @@
-import src.media.media_controls as controls
-import socket
+import argparse
 
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
+parser = argparse.ArgumentParser(description="UMK-- the universal media kontroller")
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print(f"Connected by {addr}")
-        while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            conn.sendall(data)
+parser.add_argument("-c", "--client", action="store_false", help= "Launch the App in Client Mode")
+parser.add_argument("-s", "--server", action="store_true", help= "Launch the App in Server Mode")
+
+args = parser.parse_args()
+
+mode = ''
+if args.server:
+    mode = "server"
+else:
+    mode = "client"
+    
+print(f"The app is currently running in {mode} mode.")
