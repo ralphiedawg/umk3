@@ -22,7 +22,8 @@ class Controller:
     @staticmethod
     def recieve(recieved: bytes):
         decoded = recieved.decode('utf-8')
-        controls.send_cmd(decoded)
+        status = controls.send_cmd(decoded)
+        return status
 
 if __name__ == "__main__":
     ctl = Controller()
