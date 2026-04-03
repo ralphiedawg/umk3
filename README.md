@@ -20,8 +20,10 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
     - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [x] Hearbeat Framework/Basic Layout?
         - [ ] How to find out whether media is currently playing, not just paused?
-        - [ ] Determine during heartbeat whether device is playing media
-    - [ ] Encryption? Not needed if not relaying currently playing media
+            - [ ] Not Really Possible on macos, needs a wrapper
+            - [ ] Windows: `GlobalSystemMediaTransportControlsSessionManager`
+            - [ ] Linux: `MPRIS` Over DBUS
+    - [ ] Turn Simple Server-Client into One Server, multiple clients -- KNET
 - [ ] Gesture Identification
     - [ ] Basic Hand Landmarking
     - [ ] Calculate Current Hand Gesture
