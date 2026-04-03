@@ -16,7 +16,7 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
 - [x] Basic Media Control Framework
 - [ ] Device Connection Framework
     - [x] Simple communication between devices over LAN
-    - [ ] Server-Client Agnostic Framework, just a switch for server mode
+    - [ ] Server-Client Agnostic (Separate Classes but single script via args)
     - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [x] Hearbeat Framework/Basic Layout?
         - [ ] How to find out whether media is currently playing, not just paused?

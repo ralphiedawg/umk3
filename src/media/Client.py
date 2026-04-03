@@ -5,7 +5,7 @@ import media_controls as controls
 #else:
     #import src.media.media_controls as controls
 
-class Controller:
+class Client:
     defaultAddr = '127.0.0.1'
     defaultPort = 2202
     deviceID = 0
@@ -13,8 +13,8 @@ class Controller:
         self.addr = addr
         self.port = port
         self.deviceType = deviceType
-        self.id = Controller.deviceID
-        Controller.deviceID += 1
+        self.id = Client.deviceID
+        Client.deviceID += 1
 
     def connect(self):
        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,7 +33,7 @@ class Controller:
         return status
 
 if __name__ == "__main__":
-    ctl = Controller()
+    ctl = Client()
     ctl.connect()
     while True:
         ctl.send_command(input("Command: "))

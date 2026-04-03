@@ -1,4 +1,4 @@
-from Controller import Controller
+from Client import Controller
 import json
 import time
 
@@ -8,22 +8,25 @@ class Heartbeat:
         self.device = device
         self.timestamp = time.ctime(time.time())
         self.device_id = self.device.id
+        self.playStatus = "Not Playing"
     def heartbeat(self):
         return(json.dumps(
                 {
                     "device-id": self.device_id,
                     "timestamp": self.timestamp,
-                    "device-type": self.device.deviceType
+                    "device-type": self.device.deviceType,
+                    "playStatus": self.playStatus,
                 }
             )
         )
     @staticmethod
-    def heartbeatString(device_id:int = 0, timestamp:str = time.ctime(time.time()), deviceType:str = 'client'):
+    def heartbeatString(device_id:int = 0, timestamp:str = time.ctime(time.time()), deviceType:str = 'client', playStatus:str = "Not Playing"):
         return(json.dumps(
                 {
                     "device-id": device_id,
                     "timestamp": timestamp,
-                    "device-type": deviceType
+                    "device-type": deviceType,
+                    "playStatus": playStatus
                 }
             )
         )
