@@ -1,8 +1,6 @@
 import socket
 from src.media.Controller import Controller
 
-if __name__ == "__main__":
-    print("WARNING! INTIALIZING SERVER, SPIN UP CLIENT WITHIN 10s OR THE SERVER WILL TIMEOUT")
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 2202  # Port to listen on (non-privileged ports are > 1023)
 try: 
@@ -10,7 +8,6 @@ try:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
         s.listen()
-        s.settimeout(10)
         conn, addr = s.accept()
         with conn:
             print(f"Connected by {addr}")
@@ -19,7 +16,7 @@ try:
                     data = conn.recv(1024)
                     print(data.decode("utf-8"))
                     if not data:
-                        print("data bad")
+                        print("Failed to Receive Data")
                         break
                     temp = Controller()
                     response = temp.recieve_command(data)
