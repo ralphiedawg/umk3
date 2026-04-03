@@ -1,10 +1,10 @@
-from Client import Controller
+from Client import Client
 import json
 import time
 
 class Heartbeat:
     device_id = 0
-    def __init__(self, device:Controller = Controller()):
+    def __init__(self, device:Client = Client()):
         self.device = device
         self.timestamp = time.ctime(time.time())
         self.device_id = self.device.id
@@ -33,9 +33,9 @@ class Heartbeat:
 
 
 if __name__ == "__main__":
-    ct1 = Controller()
-    ct2 = Controller()
-    ct3 = Controller()
+    ct1 = Client()
+    ct2 = Client()
+    ct3 = Client()
     print(Heartbeat(ct1).heartbeat())
     print(Heartbeat(ct2).heartbeat())
     print(Heartbeat(ct3).heartbeat())
