@@ -9,10 +9,11 @@ class Client:
     defaultAddr = '127.0.0.1'
     defaultPort = 2202
     deviceID = 0
-    def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client'):
+    def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client', mediaStatus = 'Not Playing'):
         self.addr = addr
         self.port = port
         self.deviceType = deviceType
+        self.mediaStatus = mediaStatus
         self.id = Client.deviceID
         Client.deviceID += 1
 
@@ -32,8 +33,17 @@ class Client:
         status = controls.send_cmd(decoded)
         return status
 
+    # 2-in-1 getter setter to enforce status rules
+    def playStatus(self, status:str = ''):
+        if status != '':
+            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped':
+                self.mediaStatus = status
+            else:
+                print("Invalid Status Input")
+        else: 
+            return self.mediaStatus
+
 if __name__ == "__main__":
     ctl = Client()
-    ctl.connect()
     while True:
         ctl.send_command(input("Command: "))
