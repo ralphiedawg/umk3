@@ -31,7 +31,6 @@ class Heartbeat:
             )
         )
 
-
 if __name__ == "__main__":
     ct1 = Client()
     ct2 = Client()
