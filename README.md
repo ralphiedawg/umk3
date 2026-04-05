@@ -37,3 +37,5 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
 - [ ] Tray APP
     - [ ] Killswitch
     - [ ] Set Gesture Server Device
+
+(Can you tell I'm used to java OOP?)
