@@ -1,14 +1,15 @@
 from Client import Client
+from Communication import Communication
 import json
 import time
 
-class Heartbeat:
+class Heartbeat(Communication):
     device_id = 0
     def __init__(self, device:Client = Client()):
         self.device = device
         self.timestamp = time.ctime(time.time())
         self.device_id = self.device.id
-        self.playStatus = "Not Playing"
+        self.playStatus = self.device.playStatus()
     def heartbeat(self):
         return(json.dumps(
                 {

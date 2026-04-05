@@ -1,4 +1,4 @@
-# UMK3 --- The third iteration of the universal media kontroller
+# UMK3 -- The third iteration of the universal media kontroller
 ## General Purpose
 I'm always listening to music or watching youtube on another PC. Instead of having to find the keyboard that I move off of my desk to make space for my laptop, I want to control the media hands-free, via gestures.
 (Robust KDE Connect but gesture-driven)
@@ -23,6 +23,10 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
             - [ ] Not Really Possible on macos, needs a wrapper
             - [ ] Windows: `GlobalSystemMediaTransportControlsSessionManager`
             - [ ] Linux: `MPRIS` Over DBUS
+        - [ ] Client Loop For Heartbeat
+            - [ ] Multi-Threading
+                - [ ] One Thread to Send Heartbeat
+                - [ ] Another to Listen for Commands
     - [ ] Turn Simple Server-Client into One Server, multiple clients -- KNET
 - [ ] Gesture Identification
     - [ ] Basic Hand Landmarking

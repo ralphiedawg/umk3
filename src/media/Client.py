@@ -1,5 +1,5 @@
 import socket
-
+import Heartbeat
 #if __name__ == "__main__":
 import media_controls as controls
 #else:
@@ -21,11 +21,15 @@ class Client:
        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
        self.socket.connect((self.addr, self.port))
 
-    def send_command(self, command: str):
-        encoded = command.encode("utf-8")
+    def send_comm(self, communication):
+        encoded = communication.encode('utf-8')
         self.socket.sendall(encoded)
         response = self.socket.recv(1024)
         print(f'Response: {response.decode('utf-8')}')
+
+    def send_command(self, command: str):
+        command = 'Command:' + command
+        self.send_comm(communication=command)
 
     @staticmethod
     def recieve_command(recieved: bytes):
@@ -42,6 +46,11 @@ class Client:
                 print("Invalid Status Input")
         else: 
             return self.mediaStatus
+
+    def beat_heart(self, server:str = '127.0.1', port:int = 2202):
+        heart = Heartbeat.Heartbeat(self)
+        beat = heart.heartbeat()
+
 
 if __name__ == "__main__":
     ctl = Client()
