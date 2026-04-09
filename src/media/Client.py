@@ -28,7 +28,7 @@ class Client:
         print(f'Response: {response.decode('utf-8')}')
 
     def send_command(self, command: str):
-        command = 'Command:' + command
+        command = 'Command' + command
         self.send_comm(communication=command)
 
     @staticmethod

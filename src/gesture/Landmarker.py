@@ -3,11 +3,29 @@ import os
 import cv2 as cv
 import mediapipe as mp
 
+
+
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
         self.index = cam_index
         self.model_path = model_path
         self.preserve = preserveVideo
+        BaseOptions = mp.tasks.BaseOptions
+        HandLandmarker = mp.tasks.vision.HandLandmarker
+        HandLandmarkerOpts = mp.tasks.vision.HandLandmarkerOptions
+        HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
+        VisionRunningMode = mp.tasks.vision.RunningMode
+        self.opts = HandLandmarkerOpts(
+            base_options=BaseOptions(model_asset_path=model_path),
+            running_mode=VisionRunningMode.LIVE_STREAM,
+            result_callback=self.print_result
+        )
+        self.landmarker = HandLandmarker.create_from_options(self.opts)
+
+
+    @staticmethod
+    def print_result(result, output_image: mp.Image, timestamp_ms: int):
+        print('hand landmarker result: {}'.format(result))
 
     def open_cam(self):
         self.cam = cv.VideoCapture(self.index)
