@@ -43,16 +43,16 @@ class Landmarker():
 
         # Must account for whether webcam is flipped or not:
         for index, hand_landmarks in enumerate(detection_result.hand_landmarks):
-            flipped = hand_landmarks[THUMB_IP].x > hand_landmarks[17].x
             raised_fingers = []
             is_right = detection_result.handedness[index][0].category_name == 'Right'
+            # Flipping Landmarks are different per hand though
             if is_right:
                 thumb_up = hand_landmarks[THUMB_TIP].x < hand_landmarks[THUMB_IP].x
+                flipped = hand_landmarks[THUMB_IP].x > hand_landmarks[17].x
             else:
                 thumb_up = hand_landmarks[THUMB_TIP].x > hand_landmarks[THUMB_IP].x
-                #Switch Value if the camera is flipped
-            if flipped:
-                thumb_up = not thumb_up
+                flipped = hand_landmarks[THUMB_IP].x < hand_landmarks[17].x
+            thumb_up = not thumb_up if flipped else thumb_up
             raised_fingers.append(thumb_up)
 
             for tip, knuckle in zip(FINGER_TIPS, FINGER_MCPS):
@@ -147,7 +147,8 @@ class Landmarker():
 
             status_fingers = self.fingers_status(res)
             try:
-                print(self.check_pose(status_fingers, 0))
+                print(f'Right: {self.check_pose(status_fingers, 0)}')
+                print(f'Left:{self.check_pose(status_fingers, 1)}')
                 pass
             except IndexError:
                 # Most likely because hands offscreen, ignore
