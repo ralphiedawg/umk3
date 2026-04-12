@@ -23,6 +23,7 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
             - [ ] Not Really Possible on macos, needs a wrapper
             - [ ] Windows: `GlobalSystemMediaTransportControlsSessionManager`
             - [ ] Linux: `MPRIS` Over DBUS
+            - [ ] Firefox/Chrome extension to create an interface for media controls?
         - [ ] Client Loop For Heartbeat
             - [ ] Multi-Threading
                 - [ ] One Thread to Send Heartbeat
