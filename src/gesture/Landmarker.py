@@ -2,7 +2,7 @@ import os
 
 import cv2 as cv
 import mediapipe as mp
-import time
+#import time
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -16,7 +16,6 @@ class Landmarker():
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
         HandLandmarkerOpts = mp.tasks.vision.HandLandmarkerOptions
-        HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
         VisionRunningMode = mp.tasks.vision.RunningMode
         self.opts = HandLandmarkerOpts(
             base_options=BaseOptions(model_asset_path=model_path),
@@ -30,11 +29,35 @@ class Landmarker():
         print('hand landmarker result: {}'.format(result))
 
     @staticmethod
-    def detect_pose():
-        pass
+    def fingers_status(detection_result):
+        """Returns List of bools whether fingers are raised or not (tip above knuckle)"""
+
+        status_all_hands = []
+
+        THUMB_TIP, THUMB_IP = 4, 3
+        FINGER_TIPS = [8, 12, 16, 20]
+        FINGER_MCPS = [5, 9, 13, 17] # Knuckles
+
+        if not detection_result.hand_landmarks:
+            return status_all_hands
+
+        for index, hand_landmarks in enumerate(detection_result.hand_landmarks):
+            raised_fingers = []
+            is_right = detection_result.handedness[index][0].label == 'Right'
+            if is_right:
+                thumb_up = hand_landmarks[THUMB_TIP].x < hand_landmarks[THUMB_IP].x
+            else:
+                thumb_up = hand_landmarks[THUMB_TIP].x > hand_landmarks[THUMB_IP].x
+            raised_fingers.append(thumb_up)
+
+            for tip, knuckle in zip(FINGER_TIPS, FINGER_MCPS):
+                raised_fingers.append(hand_landmarks[tip].y < hand_landmarks[knuckle].y)
+            status_all_hands.append(raised_fingers)
+        return status_all_hands
+
     @staticmethod
-    #Taken straight from google solutions idc
     def draw_landmarks_on_image(rgb_image, detection_result):
+        """Draws the landmarks of each hand on the image"""
         MARGIN = 10  # pixels
         FONT_SIZE = 1
         FONT_THICKNESS = 1
@@ -76,6 +99,7 @@ class Landmarker():
         return annotated_image
 
     def open_cam(self):
+        """Open camera at the previously chosen index & begin gesture recognition"""
         self.cam = cv.VideoCapture(self.index)
         width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
         height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
