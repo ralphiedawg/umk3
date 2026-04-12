@@ -25,50 +25,13 @@ class Landmarker():
         )
         self.landmarker = HandLandmarker.create_from_options(self.opts)
 
-
     @staticmethod
     def print_result(result, output_image: mp.Image, timestamp_ms: int):
         print('hand landmarker result: {}'.format(result))
 
-    def open_cam(self):
-        self.cam = cv.VideoCapture(self.index)
-        width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
-        height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
-
-        # I love geeksforgeeks
-        fourcc = cv.VideoWriter.fourcc(*'mp4v')
-        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
-
-        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
-        opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
-
-        detector = vision.HandLandmarker.create_from_options(opts)
-
-        while True:
-            ret, raw = self.cam.read()
-            self.out.write(raw)
-
-            raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
-
-            res = detector.detect(mp_image)
-            frame = self.draw_landmarks_on_image(raw_rgb, res)
-            #time.sleep(1/FPS)
-
-            cv.imshow('Video', frame)
-
-            if cv.waitKey(1) == ord('q'):
-                break
-        self.close_cam()
-
-    def close_cam(self):
-        self.cam.release()
-        self.out.release()
-        cv.destroyAllWindows()
-        if not self.preserve:
-            print('Deleting Output Video, this can behavior can be disabled via the flag --preserveOutput')
-            os.remove('out.mp4')
-
+    @staticmethod
+    def detect_pose():
+        pass
     @staticmethod
     #Taken straight from google solutions idc
     def draw_landmarks_on_image(rgb_image, detection_result):
@@ -111,6 +74,45 @@ class Landmarker():
                        FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv.LINE_AA)
 
         return annotated_image
+
+    def open_cam(self):
+        self.cam = cv.VideoCapture(self.index)
+        width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
+        height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
+
+        # I love geeksforgeeks
+        fourcc = cv.VideoWriter.fourcc(*'mp4v')
+        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
+
+        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
+        opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
+
+        detector = vision.HandLandmarker.create_from_options(opts)
+
+        while True:
+            ret, raw = self.cam.read()
+            self.out.write(raw)
+
+            raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
+
+            res = detector.detect(mp_image)
+            frame = self.draw_landmarks_on_image(raw_rgb, res)
+            #time.sleep(1/FPS)
+
+            cv.imshow('Video', frame)
+
+            if cv.waitKey(1) == ord('q'):
+                break
+            self.close_cam()
+
+    def close_cam(self):
+        self.cam.release()
+        self.out.release()
+        cv.destroyAllWindows()
+        if not self.preserve:
+            print('Deleting Output Video, this can behavior can be disabled via the flag --preserveOutput')
+            os.remove('out.mp4')
 
 if __name__ == "__main__":
     L = Landmarker()
