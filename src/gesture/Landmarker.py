@@ -91,6 +91,8 @@ class Landmarker():
 
         while True:
             ret, raw = self.cam.read()
+            if not ret:
+                break
             self.out.write(raw)
 
             raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
@@ -104,14 +106,14 @@ class Landmarker():
 
             if cv.waitKey(1) == ord('q'):
                 break
-            self.close_cam()
+        self.close_cam()
 
     def close_cam(self):
         self.cam.release()
         self.out.release()
         cv.destroyAllWindows()
         if not self.preserve:
-            print('Deleting Output Video, this can behavior can be disabled via the flag --preserveOutput')
+            print('Deleting output video, this can behavior can be disabled via the flag --preserveOutput')
             os.remove('out.mp4')
 
 if __name__ == "__main__":
