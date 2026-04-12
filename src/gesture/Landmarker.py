@@ -2,12 +2,12 @@ import os
 
 import cv2 as cv
 import mediapipe as mp
-import time
+#import time
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-FPS = 60
+#FPS = 60
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
         self.index = cam_index
@@ -16,7 +16,6 @@ class Landmarker():
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
         HandLandmarkerOpts = mp.tasks.vision.HandLandmarkerOptions
-        HandLandmarkerResult = mp.tasks.vision.HandLandmarkerResult
         VisionRunningMode = mp.tasks.vision.RunningMode
         self.opts = HandLandmarkerOpts(
             base_options=BaseOptions(model_asset_path=model_path),
@@ -25,53 +24,64 @@ class Landmarker():
         )
         self.landmarker = HandLandmarker.create_from_options(self.opts)
 
-
     @staticmethod
     def print_result(result, output_image: mp.Image, timestamp_ms: int):
         print('hand landmarker result: {}'.format(result))
 
-    def open_cam(self):
-        self.cam = cv.VideoCapture(self.index)
-        width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
-        height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
+    @staticmethod
+    def fingers_status(detection_result):
+        """Returns List of bools whether fingers are raised or not (tip above knuckle)"""
 
-        # I love geeksforgeeks
-        fourcc = cv.VideoWriter.fourcc(*'mp4v')
-        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
+        status_all_hands = []
 
-        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
-        opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
+        THUMB_TIP, THUMB_IP = 4, 3
+        FINGER_TIPS = [8, 12, 16, 20]
+        FINGER_MCPS = [5, 9, 13, 17] # Knuckles
 
-        detector = vision.HandLandmarker.create_from_options(opts)
+        if not detection_result.hand_landmarks:
+            return status_all_hands
 
-        while True:
-            ret, raw = self.cam.read()
-            self.out.write(raw)
+        # Must account for whether webcam is flipped or not:
+        for index, hand_landmarks in enumerate(detection_result.hand_landmarks):
+            raised_fingers = []
+            is_right = detection_result.handedness[index][0].category_name == 'Right'
+            # Flipping Landmarks are different per hand though
+            if is_right:
+                thumb_up = hand_landmarks[THUMB_TIP].x < hand_landmarks[THUMB_IP].x
+                flipped = hand_landmarks[THUMB_IP].x > hand_landmarks[17].x
+            else:
+                thumb_up = hand_landmarks[THUMB_TIP].x > hand_landmarks[THUMB_IP].x
+                flipped = hand_landmarks[THUMB_IP].x < hand_landmarks[17].x
+            thumb_up = not thumb_up if flipped else thumb_up
+            raised_fingers.append(thumb_up)
 
-            raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
-
-            res = detector.detect(mp_image)
-            frame = self.draw_landmarks_on_image(raw_rgb, res)
-            #time.sleep(1/FPS)
-
-            cv.imshow('Video', frame)
-
-            if cv.waitKey(1) == ord('q'):
-                break
-        self.close_cam()
-
-    def close_cam(self):
-        self.cam.release()
-        self.out.release()
-        cv.destroyAllWindows()
-        if not self.preserve:
-            print('Deleting Output Video, this can behavior can be disabled via the flag --preserveOutput')
-            os.remove('out.mp4')
+            for tip, knuckle in zip(FINGER_TIPS, FINGER_MCPS):
+                raised_fingers.append(hand_landmarks[tip].y < hand_landmarks[knuckle].y)
+            status_all_hands.append(raised_fingers)
+        return status_all_hands
 
     @staticmethod
-    #Taken straight from google solutions idc
+    def check_pose(finger_data, index):
+        """Check the passed hands data against the dictionary of hand poses"""
+        # 0-4, 0 being thumb. True means extended
+        poses = {
+            "open_palm": [True, True, True, True, True],
+            "peace": [False, True, True, False, False],
+            "shaka": [True, False, False, False, True],
+            "closed_fist": [False, False, False, False, False],
+            "i": [False, False, False, False, True],
+            "point": [False, True, False, False, False],
+            "spiderman": [False, True, False, False, True]
+        }
+
+        target = finger_data[index]
+        pose = [key for key, val in poses.items() if val == target]
+
+        return(pose)
+
+    @staticmethod
     def draw_landmarks_on_image(rgb_image, detection_result):
+        """Draws the landmarks of each hand on the image"""
         MARGIN = 10  # pixels
         FONT_SIZE = 1
         FONT_THICKNESS = 1
@@ -111,6 +121,55 @@ class Landmarker():
                        FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv.LINE_AA)
 
         return annotated_image
+
+    def open_cam(self):
+        """Open camera at the previously chosen index & begin gesture recognition"""
+        self.cam = cv.VideoCapture(self.index)
+        width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
+        height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
+        # I love geeksforgeeks
+        fourcc = cv.VideoWriter.fourcc(*'mp4v')
+        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
+
+        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
+        opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
+
+        detector = vision.HandLandmarker.create_from_options(opts)
+
+        while True:
+            ret, raw = self.cam.read()
+            if not ret:
+                break
+            self.out.write(raw)
+
+            raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
+
+            res = detector.detect(mp_image)
+            frame = self.draw_landmarks_on_image(raw_rgb, res)
+            #time.sleep(1/FPS)
+            cv.imshow('Video', frame)
+
+            status_fingers = self.fingers_status(res)
+            try:
+                print(f'Right: {self.check_pose(status_fingers, 0)}')
+                print(f'Left:{self.check_pose(status_fingers, 1)}')
+                pass
+            except IndexError:
+                # Most likely because hands offscreen, ignore
+                pass
+
+            if cv.waitKey(1) == ord('q'):
+                break
+        self.close_cam()
+
+    def close_cam(self):
+        self.cam.release()
+        self.out.release()
+        cv.destroyAllWindows()
+        if not self.preserve:
+            print('Deleting output video, this can behavior can be disabled via the flag --preserveOutput')
+            os.remove('out.mp4')
 
 if __name__ == "__main__":
     L = Landmarker()
