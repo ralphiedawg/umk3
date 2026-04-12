@@ -41,19 +41,37 @@ class Landmarker():
         if not detection_result.hand_landmarks:
             return status_all_hands
 
+        # Must account for whether webcam is flipped or not:
         for index, hand_landmarks in enumerate(detection_result.hand_landmarks):
+            flipped = hand_landmarks[THUMB_IP].x > hand_landmarks[17].x
             raised_fingers = []
-            is_right = detection_result.handedness[index][0].label == 'Right'
+            is_right = detection_result.handedness[index][0].category_name == 'Right'
             if is_right:
                 thumb_up = hand_landmarks[THUMB_TIP].x < hand_landmarks[THUMB_IP].x
             else:
                 thumb_up = hand_landmarks[THUMB_TIP].x > hand_landmarks[THUMB_IP].x
+                #Switch Value if the camera is flipped
+            if flipped:
+                thumb_up = not thumb_up
             raised_fingers.append(thumb_up)
 
             for tip, knuckle in zip(FINGER_TIPS, FINGER_MCPS):
                 raised_fingers.append(hand_landmarks[tip].y < hand_landmarks[knuckle].y)
             status_all_hands.append(raised_fingers)
         return status_all_hands
+
+    @staticmethod
+    def check_pose(finger_data, index):
+        """Check the passed hands data against the dictionary of hand poses"""
+        # 0-4, 0 being thumb. True means extended
+        poses = {
+            "open_palm": [True, True, True, True, True],
+            "peace": [False, True, True, False, False],
+        }
+        target = finger_data[index]
+        pose = [key for key, val in poses.items() if val == target]
+
+        return(pose)
 
     @staticmethod
     def draw_landmarks_on_image(rgb_image, detection_result):
@@ -125,8 +143,15 @@ class Landmarker():
             res = detector.detect(mp_image)
             frame = self.draw_landmarks_on_image(raw_rgb, res)
             #time.sleep(1/FPS)
-
             cv.imshow('Video', frame)
+
+            status_fingers = self.fingers_status(res)
+            try:
+                print(self.check_pose(status_fingers, 0))
+                pass
+            except IndexError:
+                # Most likely because hands offscreen, ignore
+                pass
 
             if cv.waitKey(1) == ord('q'):
                 break
