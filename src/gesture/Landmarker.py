@@ -7,7 +7,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-FPS = 60
+#FPS = 60
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
         self.index = cam_index
@@ -67,7 +67,13 @@ class Landmarker():
         poses = {
             "open_palm": [True, True, True, True, True],
             "peace": [False, True, True, False, False],
+            "shaka": [True, False, False, False, True],
+            "closed_fist": [False, False, False, False, False],
+            "i": [False, False, False, False, True],
+            "point": [False, True, False, False, False],
+            "spiderman": [False, True, False, False, True]
         }
+
         target = finger_data[index]
         pose = [key for key, val in poses.items() if val == target]
 
@@ -121,7 +127,6 @@ class Landmarker():
         self.cam = cv.VideoCapture(self.index)
         width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
         height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
-
         # I love geeksforgeeks
         fourcc = cv.VideoWriter.fourcc(*'mp4v')
         self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
