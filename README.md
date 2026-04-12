@@ -30,11 +30,11 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
                 - [ ] Another to Listen for Commands
     - [ ] Turn Simple Server-Client into One Server, multiple clients -- KNET
 - [ ] Gesture Identification
-    - [ ] Basic Hand Landmarking
-    - [ ] Calculate Current Hand Gesture
-        - [ ] Shaka to wake,
-        - [ ] V for volume,
-        - [ ] Palm for play/pause
+    - [x] Basic Hand Landmarking
+    - [x] Calculate Current Hand Gesture
+        - [x] Shaka to wake,
+        - [x] V for volume,
+        - [x] Palm for play/pause
 - [ ] Tray APP
     - [ ] Killswitch
     - [ ] Set Gesture Server Device
