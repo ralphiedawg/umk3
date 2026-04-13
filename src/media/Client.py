@@ -40,8 +40,7 @@ class Client:
     # 2-in-1 getter setter to enforce status rules
     def playStatus(self, status:str = ''):
         if status != '':
-            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped':
-                self.mediaStatus = status
+            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped': self.mediaStatus = status
             else:
                 print("Invalid Status Input")
         else: 
@@ -56,5 +55,6 @@ class Client:
 
 if __name__ == "__main__":
     ctl = Client()
+    ctl.connect()
     while True:
         ctl.send_command(input("Command: "))
