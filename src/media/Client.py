@@ -1,7 +1,7 @@
 import socket
-import Heartbeat
+#import Heartbeat
 #if __name__ == "__main__":
-import media_controls as controls
+import src.media.media_controls as controls
 #else:
     #import src.media.media_controls as controls
 
@@ -47,9 +47,11 @@ class Client:
         else: 
             return self.mediaStatus
 
+    """
     def beat_heart(self, server:str = '127.0.1', port:int = 2202):
         heart = Heartbeat.Heartbeat(self)
         beat = heart.heartbeat()
+    """
 
 
 if __name__ == "__main__":
