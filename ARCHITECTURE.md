@@ -95,8 +95,8 @@ UMK3 is a universal media controller that uses hand gesture recognition to contr
 
 ### Phase 1: Protocol & Data Structures
 - [x] Update `Heartbeat.py`: Add `"type": "heartbeat"` to JSON output
-- [ ] Update `Command.py`: Ensure clean command JSON format
-- [ ] Update `Client.py`: Add client-side state tracking `(device_id, playStatus)`
+- [x] Update `Command.py`: Ensure clean command JSON format
+- [x] Update `Client.py`: Add client-side state tracking `(device_id, playStatus)`
 
 ### Phase 2: Server Multi-Client Support
 - [ ] Refactor `Server.py`: Replace single connection with connection pool
