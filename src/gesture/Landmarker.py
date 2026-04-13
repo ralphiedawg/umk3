@@ -72,7 +72,9 @@ class Landmarker():
             "closed_fist": [False, False, False, False, False],
             "i": [False, False, False, False, True],
             "point": [False, True, False, False, False],
-            "spiderman": [False, True, False, False, True]
+            "spiderman": [False, True, False, False, True],
+            "justin": [False, False, True, False, False],
+            "rock_on": [True, True, False, False, True]
         }
 
         target = finger_data[index]
@@ -129,6 +131,7 @@ class Landmarker():
             "open_palm": "pause",
             "i":"back5",
             "point":"skip5",
+            "shaka":"listen",
         }
 
         print(commands.get(pose, "No command found"))
@@ -167,10 +170,12 @@ class Landmarker():
             try:
                 if num_hands >= 1:
                     first = self.check_pose(status_fingers, 0)
-                    Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
+                    print(first)
+                    #Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
                 if num_hands >= 2:
                     second = self.check_pose(status_fingers, 1)
-                    Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
+                    print(second)
+                    #Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
             except IndexError:
                 # Most likely because hands offscreen, ignore
                 pass
