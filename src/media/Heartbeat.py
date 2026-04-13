@@ -13,10 +13,11 @@ class Heartbeat(Communication):
     def heartbeat(self):
         return(json.dumps(
                 {
-                    "device-id": self.device_id,
-                    "timestamp": self.timestamp,
-                    "device-type": self.device.deviceType,
-                    "playStatus": self.playStatus,
+                    'type': 'heartbeat',
+                    'device-id': self.device_id,
+                    'timestamp': self.timestamp,
+                    'device-type': self.device.deviceType,
+                    'playStatus': self.playStatus,
                 }
             )
         )
@@ -24,10 +25,11 @@ class Heartbeat(Communication):
     def heartbeatString(device_id:int = 0, timestamp:str = time.ctime(time.time()), deviceType:str = 'client', playStatus:str = "Not Playing"):
         return(json.dumps(
                 {
-                    "device-id": device_id,
-                    "timestamp": timestamp,
-                    "device-type": deviceType,
-                    "playStatus": playStatus
+                    'type': 'heartbeat',
+                    'device-id': device_id,
+                    'timestamp': timestamp,
+                    'device-type': deviceType,
+                    'playStatus': playStatus
                 }
             )
         )
