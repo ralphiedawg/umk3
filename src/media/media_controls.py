@@ -9,10 +9,8 @@ def send_cmd(cmd):
     elif cmd == "mute":
         board.press(Key.media_volume_mute)
     elif cmd == "skip5":
-        time.sleep(3)
         board.press(Key.right)
     elif cmd == "back5":
-        time.sleep(3)
         board.press(Key.left)
     elif cmd == "skip":
         board.press(Key.media_next)

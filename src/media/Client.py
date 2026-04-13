@@ -1,7 +1,7 @@
 import socket
-import Heartbeat
+#import Heartbeat
 #if __name__ == "__main__":
-import media_controls as controls
+import src.media.media_controls as controls
 #else:
     #import src.media.media_controls as controls
 
@@ -40,19 +40,21 @@ class Client:
     # 2-in-1 getter setter to enforce status rules
     def playStatus(self, status:str = ''):
         if status != '':
-            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped':
-                self.mediaStatus = status
+            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped': self.mediaStatus = status
             else:
                 print("Invalid Status Input")
         else: 
             return self.mediaStatus
 
+    """
     def beat_heart(self, server:str = '127.0.1', port:int = 2202):
         heart = Heartbeat.Heartbeat(self)
         beat = heart.heartbeat()
+    """
 
 
 if __name__ == "__main__":
     ctl = Client()
+    ctl.connect()
     while True:
         ctl.send_command(input("Command: "))

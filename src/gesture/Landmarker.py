@@ -1,8 +1,9 @@
-import os
+from ..media.Client import Client
 
+import os
 import cv2 as cv
 import mediapipe as mp
-#import time
+import time
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -71,13 +72,15 @@ class Landmarker():
             "closed_fist": [False, False, False, False, False],
             "i": [False, False, False, False, True],
             "point": [False, True, False, False, False],
-            "spiderman": [False, True, False, False, True]
+            "spiderman": [False, True, False, False, True],
+            "justin": [False, False, True, False, False],
+            "rock_on": [True, True, False, False, True]
         }
 
         target = finger_data[index]
         pose = [key for key, val in poses.items() if val == target]
 
-        return(pose)
+        return(pose[0])
 
     @staticmethod
     def draw_landmarks_on_image(rgb_image, detection_result):
@@ -122,6 +125,18 @@ class Landmarker():
 
         return annotated_image
 
+    @staticmethod
+    def pose_to_cmd(pose):
+        commands = {
+            "open_palm": "pause",
+            "i":"back5",
+            "point":"skip5",
+            "shaka":"listen",
+        }
+
+        print(commands.get(pose, "No command found"))
+        return commands.get(pose, "No command found")
+
     def open_cam(self):
         """Open camera at the previously chosen index & begin gesture recognition"""
         self.cam = cv.VideoCapture(self.index)
@@ -151,10 +166,14 @@ class Landmarker():
             cv.imshow('Video', frame)
 
             status_fingers = self.fingers_status(res)
+            num_hands = len(status_fingers)
             try:
-                print(f'Right: {self.check_pose(status_fingers, 0)}')
-                print(f'Left:{self.check_pose(status_fingers, 1)}')
-                pass
+                if num_hands >= 1:
+                    first = self.check_pose(status_fingers, 0)
+                    Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
+                if num_hands >= 2:
+                    second = self.check_pose(status_fingers, 1)
+                    Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
             except IndexError:
                 # Most likely because hands offscreen, ignore
                 pass
