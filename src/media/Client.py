@@ -1,25 +1,27 @@
 import socket
 #import Heartbeat
 #if __name__ == "__main__":
-import src.media.media_controls as controls
+import media_controls as controls
 #else:
-    #import src.media.media_controls as controls
-
+#import src.media.media_controls as controls
 class Client:
     defaultAddr = '127.0.0.1'
-    defaultPort = 2202
+    defaultPort = 2022
     deviceID = 0
     def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client', mediaStatus = 'Not Playing'):
         self.addr = addr
         self.port = port
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
-        self.id = Client.deviceID
+        self.id: int = Client.deviceID
         Client.deviceID += 1
 
     def connect(self):
-       self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-       self.socket.connect((self.addr, self.port))
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.addr, self.port))
+        id = int.to_bytes(self.id, byteorder = 'big')
+        self.socket.sendall(id)
+
 
     def send_comm(self, communication):
         encoded = communication.encode('utf-8')
@@ -28,12 +30,11 @@ class Client:
         print(f'Response: {response.decode('utf-8')}')
 
     def send_command(self, command: str):
-        command = 'Command' + command
         self.send_comm(communication=command)
 
     @staticmethod
-    def recieve_command(recieved: bytes):
-        decoded = recieved.decode('utf-8')
+    def receive_command(received: bytes):
+        decoded = received.decode('utf-8')
         status = controls.send_cmd(decoded)
         return status
 
@@ -57,4 +58,4 @@ if __name__ == "__main__":
     ctl = Client()
     ctl.connect()
     while True:
-        ctl.send_command(input("Command: "))
+        ctl.send_comm(input('Communication: '))

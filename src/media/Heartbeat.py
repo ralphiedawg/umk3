@@ -1,11 +1,10 @@
-from Client import Client
 from Communication import Communication
 import json
 import time
 
 class Heartbeat(Communication):
     device_id = 0
-    def __init__(self, device:Client = Client()):
+    def __init__(self, device):
         self.device = device
         self.timestamp = time.ctime(time.time())
         self.device_id = self.device.id
@@ -34,10 +33,4 @@ class Heartbeat(Communication):
             )
         )
 
-if __name__ == "__main__":
-    ct1 = Client()
-    ct2 = Client()
-    ct3 = Client()
-    print(Heartbeat(ct1).heartbeat())
-    print(Heartbeat(ct2).heartbeat())
-    print(Heartbeat(ct3).heartbeat())
+#if __name__ == "__main__":
