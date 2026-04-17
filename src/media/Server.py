@@ -1,13 +1,13 @@
 import socket
 import threading
-import sys
 import json
-from io import StringIO
 
+"""
 if __name__ == "__main__":
     from Client import Client
 else:
     from src.media.Client import Client
+"""
 
 class Server():
     def __init__(self, addr:str = '127.0.0.1', port:int = 2022):
@@ -20,11 +20,13 @@ class Server():
 
         self.clients = {}
         self.active_client = {}
+        self.next_client_id = 0
 
     def on_new_client(self, clientsocket: socket.socket, addr):
-        raw = clientsocket.recv(1024)
-        id = int(raw)
-        self.clients[id] = addr
+        self.next_client_id += 1
+        id = self.next_client_id
+        self.clients[id] = {'addr': addr, 'socket': clientsocket}
+        clientsocket.sendall(json.dumps({'type':'id_assignment', 'id': id}).encode())
 
         print(f'Client with address {addr} assigned id {id}')
         

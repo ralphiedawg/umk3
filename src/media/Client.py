@@ -1,4 +1,5 @@
 import socket
+import json
 #import threading
 #import Heartbeat
 #if __name__ == "__main__":
@@ -8,20 +9,18 @@ import media_controls as controls
 class Client:
     defaultAddr = '127.0.0.1'
     defaultPort = 2022
-    deviceID = 0
     def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client', mediaStatus = 'Not Playing'):
         self.addr = addr
         self.port = port
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
-        self.id: int = Client.deviceID
-        Client.deviceID += 1
 
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.addr, self.port))
-        id = str(self.id).encode('utf-8')
-        self.socket.sendall(id)
+        id_assignment = self.socket.recv(1024).decode()
+        id_data = json.loads(id_assignment)
+        self.id = id_data['id']
 
 
     def send_comm(self, communication):
