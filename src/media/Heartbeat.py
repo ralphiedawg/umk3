@@ -1,13 +1,12 @@
-from Client import Client
 from Communication import Communication
 import json
 import time
+#from Client import Client
 
 class Heartbeat(Communication):
     device_id = 0
-    def __init__(self, device:Client = Client()):
+    def __init__(self, device):
         self.device = device
-        self.timestamp = time.ctime(time.time())
         self.device_id = self.device.id
         self.playStatus = self.device.playStatus()
     def heartbeat(self):
@@ -15,14 +14,14 @@ class Heartbeat(Communication):
                 {
                     'type': 'heartbeat',
                     'device-id': self.device_id,
-                    'timestamp': self.timestamp,
+                    'timestamp': str(time.time()),
                     'device-type': self.device.deviceType,
                     'playStatus': self.playStatus,
                 }
             )
         )
     @staticmethod
-    def heartbeatString(device_id:int = 0, timestamp:str = time.ctime(time.time()), deviceType:str = 'client', playStatus:str = "Not Playing"):
+    def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "not_playing "):
         return(json.dumps(
                 {
                     'type': 'heartbeat',
@@ -34,10 +33,9 @@ class Heartbeat(Communication):
             )
         )
 
+"""
 if __name__ == "__main__":
-    ct1 = Client()
-    ct2 = Client()
-    ct3 = Client()
-    print(Heartbeat(ct1).heartbeat())
-    print(Heartbeat(ct2).heartbeat())
-    print(Heartbeat(ct3).heartbeat())
+    c1 = Client()
+    h1 = Heartbeat(c1)
+    print(h1.heartbeat())
+"""
