@@ -29,6 +29,10 @@ class Server():
         self.next_client_id = 0
         self.id_lock = threading.Lock()
 
+        self.listening = False
+        self.listen_timestamp = 0
+        self.listen_timeout = 5 
+
         self.command_queue = Queue()
 
     def on_new_client(self, clientsocket: socket.socket, addr):
@@ -89,9 +93,11 @@ class Server():
                 self.active_client['timestamp'] = ts
                 self.active_client['media_status'] = play_status
                 self.active_client['type'] = device_type
+                self.active_client['socket'] = self.clients[device_id]['socket']
                 return device_id
         except KeyError:
             print('Key not found, ensure that all data transferred properly')
+        return 1
         return -1
 
     def _socket_listener(self):
@@ -110,10 +116,18 @@ class Server():
         while True:
             if not self.command_queue.empty():
                 command = self.command_queue.get()
-                if self.active_client:
+
+                if command == 'listen':
+                    self.listen_timestamp = time.time()
+
+                self.listening = time.time() - self.listen_timestamp <= self.listen_timeout
+
+
+                if (self.active_client and self.listening):
+                    self.listening = False
                     try:
                         self.active_client['socket'].sendall(json.dumps({'type': 'command', 'command': command}).encode())
-                    except:
+                    except json.JSONDecodeError:
                         print(f"Failed to send command to client {self.active_client['id']}")
             time.sleep(0.1)
 
