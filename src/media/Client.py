@@ -1,4 +1,5 @@
 import socket
+#import threading
 #import Heartbeat
 #if __name__ == "__main__":
 import media_controls as controls
@@ -19,7 +20,7 @@ class Client:
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.addr, self.port))
-        id = int.to_bytes(self.id, byteorder = 'big')
+        id = str(self.id).encode('utf-8')
         self.socket.sendall(id)
 
 
@@ -47,6 +48,10 @@ class Client:
         else: 
             return self.mediaStatus
 
+    def run(self):
+        received = self.socket.recv(1024)
+        return self.receive_command(received)
+
     """
     def beat_heart(self, server:str = '127.0.1', port:int = 2202):
         heart = Heartbeat.Heartbeat(self)
@@ -57,5 +62,3 @@ class Client:
 if __name__ == "__main__":
     ctl = Client()
     ctl.connect()
-    while True:
-        ctl.send_comm(input('Communication: '))

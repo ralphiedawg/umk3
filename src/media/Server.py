@@ -1,6 +1,8 @@
 import socket
 import threading
 import sys
+import json
+from io import StringIO
 
 if __name__ == "__main__":
     from Client import Client
@@ -17,43 +19,11 @@ class Server():
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         self.clients = {}
-        self.active_client_index = 0
-
-    """
-    def run_server(self):
-        try: 
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                s.bind((self.addr, self.port))
-                s.listen()
-                conn, addr = s.accept()
-                with conn:
-                    print(f"Connected by {addr}")
-                    while True:
-                        try:
-                            data = conn.recv(1024)
-                            print(data.decode("utf-8"))
-                            if not data:
-                                print("Failed to Receive Data")
-                                break
-                            response = Client().recieve_command(data)
-                            print(response)
-                            conn.sendall(response.encode('utf-8'))
-                            
-                        except socket.timeout:
-                            continue
-        except KeyboardInterrupt:
-            print('Process Exited by User, shutting down')
-            if not conn:
-                exit()
-            else:
-                conn.close()
-                exit()
-    """
+        self.active_client = {}
 
     def on_new_client(self, clientsocket: socket.socket, addr):
         raw = clientsocket.recv(1024)
-        id = int.from_bytes(raw, byteorder='big')
+        id = int(raw)
         self.clients[id] = addr
 
         print(f'Client with address {addr} assigned id {id}')
@@ -61,20 +31,54 @@ class Server():
         while True:
             try:
                 data = clientsocket.recv(1024)
-                print(f'Incoming Comm from id {id}: {data.decode('utf-8')}')
                 if not data:
-                    print("Failed to Recieve Data")
-                    break
-                if data.decode('utf-8') == 'break' or data == 'close':
-                    print('Break recieved.')
-                    break
-                else:
-                    resp = Client().receive_command(data)
-                print(resp)
-                clientsocket.sendall(resp.encode('utf-8'))
+                    print('Failed to Receive Data')
+                
+                heartbeat_str = data.decode()
+                active = self.parse_heartbeat(heartbeat_str) == True
+                resp = json.dumps(
+                    {
+                        'type':'acknowledgement',
+                        'active': active
+                    }
+                )
+
+                clientsocket.sendall(resp.encode())
             except TimeoutError:
                 continue
-        sys.exit()
+            except json.JSONDecodeError:
+                print(f'Recieved invalid json from client {id}')
+
+    """
+        {
+            "type": "heartbeat", 
+            "device-id": 0, 
+            "timestamp": "Thu Apr 16 14:26:38 2026", 
+            "device-type": "client", 
+            "playStatus": "Not Playing"
+        }
+    """
+    def parse_heartbeat(self, heartbeat):
+        """ Process Hearbeat and update server"""
+        beat = json.loads(heartbeat)
+        try: 
+            device_id = beat['device-id']
+            ts = float(beat['timestamp'])
+            device_type = beat['device-type']
+            play_status = beat['playStatus']
+
+            if (not self.active_client) or (
+                self.active_client['timestamp'] < ts and 
+                play_status in ('playing') # Add back 'paused' if issues occur
+            ): #Complex if statements > nested ones
+                self.active_client['id'] = device_id
+                self.active_client['timestamp'] = ts
+                self.active_client['media_status'] = play_status
+                self.active_client['type'] = device_type
+                return device_id
+        except KeyError:
+            print('Key not found, ensure that all data transferred properly')
+        return -1
 
     def run_server(self):
         while True:
