@@ -24,10 +24,10 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
             - [ ] Windows: `GlobalSystemMediaTransportControlsSessionManager`
             - [ ] Linux: `MPRIS` Over DBUS
             - [ ] Firefox/Chrome extension to create an interface for media controls?
-        - [ ] Client Loop For Heartbeat
-            - [ ] Multi-Threading
-                - [ ] One Thread to Send Heartbeat
-                - [ ] Another to Listen for Commands
+        - [x] Client Loop For Heartbeat
+            - [x] Multi-Threading
+                - [x] One Thread to Send Heartbeat
+                - [x] Another to Listen for Commands
     - [x] Turn Simple Server-Client into One Server, multiple clients -- KNET
 - [x] Gesture Identification
     - [x] Basic Hand Landmarking
