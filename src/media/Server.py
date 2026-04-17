@@ -21,10 +21,13 @@ class Server():
         self.clients = {}
         self.active_client = {}
         self.next_client_id = 0
+        self.id_lock = threading.Lock()
 
     def on_new_client(self, clientsocket: socket.socket, addr):
-        self.next_client_id += 1
-        id = self.next_client_id
+        with self.id_lock:
+            self.next_client_id += 1
+            id = self.next_client_id
+
         self.clients[id] = {'addr': addr, 'socket': clientsocket}
         clientsocket.sendall(json.dumps({'type':'id_assignment', 'id': id}).encode())
 
