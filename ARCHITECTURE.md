@@ -114,10 +114,10 @@ UMK3 is a universal media controller that uses hand gesture recognition to contr
   - Thread 2: Command listener (receive from server)
 
 ### Phase 4: Move Landmarker to Server
-- [ ] Move `Landmarker.open_cam()` logic from Client to Server
-- [ ] Update `Landmarker.py`: Remove `Client.recieve_command()` calls
-- [ ] Integrate with gesture detection thread in Server
-- [ ] Send commands to active client via socket instead of local execution
+- [x] Move `Landmarker.open_cam()` logic from Client to Server
+- [x] Update `Landmarker.py`: Remove `Client.recieve_command()` calls
+- [x] Integrate with gesture detection thread in Server
+- [x] Send commands to active client via socket instead of local execution
 
 ### Phase 5: Listen Mode
 - [ ] Add state tracking to `Server.py`: `listening`, `listen_timestamp`, `listen_timeout`
