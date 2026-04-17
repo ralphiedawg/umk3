@@ -1,6 +1,15 @@
 import socket
 import threading
 import json
+import time
+
+if __name__ == "__main__":
+         import multiprocessing
+         multiprocessing.set_start_method('spawn', force=True)
+
+from multiprocessing import Process
+
+from ..gesture.Landmarker import Landmarker
 
 """
 if __name__ == "__main__":
@@ -8,6 +17,11 @@ if __name__ == "__main__":
 else:
     from src.media.Client import Client
 """
+
+
+def gesture_detection_worker():
+         landmarker = Landmarker()
+         landmarker.open_cam()
 
 class Server():
     def __init__(self, addr:str = '127.0.0.1', port:int = 2022):
@@ -40,6 +54,7 @@ class Server():
                     print('Failed to Receive Data')
                 
                 heartbeat_str = data.decode()
+                print(heartbeat_str)
                 active = self.parse_heartbeat(heartbeat_str) == True
                 resp = json.dumps(
                     {
@@ -85,12 +100,23 @@ class Server():
             print('Key not found, ensure that all data transferred properly')
         return -1
 
-    def run_server(self):
+    def _socket_listener(self):
         while True:
             self.socket.listen()
             connection, addr = self.socket.accept()
             thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
             thread.start()
+
+
+    def run_server(self):
+        threading.Thread(target=self._socket_listener, daemon=True).start()
+
+        Process(target=gesture_detection_worker, daemon=True).start()
+
+        while True:
+            time.sleep(1)
+
+
 if __name__ == "__main__":
     S1 = Server()
     S1.run_server()

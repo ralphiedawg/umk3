@@ -1,4 +1,3 @@
-from ..media.Client import Client
 
 import os
 import cv2 as cv
@@ -170,10 +169,10 @@ class Landmarker():
             try:
                 if num_hands >= 1:
                     first = self.check_pose(status_fingers, 0)
-                    Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
+                    #Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
                 if num_hands >= 2:
                     second = self.check_pose(status_fingers, 1)
-                    Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
+                    #Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
             except IndexError:
                 # Most likely because hands offscreen, ignore
                 pass
