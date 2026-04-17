@@ -99,17 +99,17 @@ UMK3 is a universal media controller that uses hand gesture recognition to contr
 - [x] Update `Client.py`: Add client-side state tracking `(device_id, playStatus)`
 
 ### Phase 2: Server Multi-Client Support
-- [ ] Refactor `Server.py`: Replace single connection with connection pool
+- [x] Refactor `Server.py`: Replace single connection with connection pool
   - Add `self.clients = {}` dictionary to track connected clients
   - Add `self.active_client_id` to track active routing target
   - Implement socket listener that accepts multiple connections
-- [ ] Add heartbeat receiver: Parse incoming heartbeats, update active client
+- [x] Add heartbeat receiver: Parse incoming heartbeats, update active client
 
 ### Phase 3: Threading for Parallel Operations
-- [ ] Add threading to `Server.py`:
+- [x] Add threading to `Server.py`:
   - Thread 1: Socket listener (accept connections + heartbeat parsing)
   - Thread 2: Gesture detection `(Landmarker.open_cam)`
-- [ ] Add threading to `Client.py`:
+- [x] Add threading to `Client.py`:
   - Thread 1: Heartbeat sender (periodic)
   - Thread 2: Command listener (receive from server)
 

@@ -7,21 +7,13 @@ if __name__ == "__main__":
          import multiprocessing
          multiprocessing.set_start_method('spawn', force=True)
 
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 
 from ..gesture.Landmarker import Landmarker
 
-"""
-if __name__ == "__main__":
-    from Client import Client
-else:
-    from src.media.Client import Client
-"""
-
-
-def gesture_detection_worker():
+def gesture_detection_worker(command_queue):
          landmarker = Landmarker()
-         landmarker.open_cam()
+         landmarker.open_cam(command_queue)
 
 class Server():
     def __init__(self, addr:str = '127.0.0.1', port:int = 2022):
@@ -36,6 +28,8 @@ class Server():
         self.active_client = {}
         self.next_client_id = 0
         self.id_lock = threading.Lock()
+
+        self.command_queue = Queue()
 
     def on_new_client(self, clientsocket: socket.socket, addr):
         with self.id_lock:
@@ -111,11 +105,17 @@ class Server():
     def run_server(self):
         threading.Thread(target=self._socket_listener, daemon=True).start()
 
-        Process(target=gesture_detection_worker, daemon=True).start()
+        Process(target=gesture_detection_worker,args = (self.command_queue,), daemon=True).start()
 
         while True:
-            time.sleep(1)
-
+            if not self.command_queue.empty():
+                command = self.command_queue.get()
+                if self.active_client:
+                    try:
+                        self.active_client['socket'].sendall(json.dumps({'type': 'command', 'command': command}).encode())
+                    except:
+                        print(f"Failed to send command to client {self.active_client['id']}")
+            time.sleep(0.1)
 
 if __name__ == "__main__":
     S1 = Server()

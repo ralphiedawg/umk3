@@ -1,8 +1,7 @@
-
 import os
 import cv2 as cv
 import mediapipe as mp
-import time
+from multiprocessing import Queue
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -136,7 +135,7 @@ class Landmarker():
         print(commands.get(pose, "No command found"))
         return commands.get(pose, "No command found")
 
-    def open_cam(self):
+    def open_cam(self, command_queue: Queue = None):
         """Open camera at the previously chosen index & begin gesture recognition"""
         self.cam = cv.VideoCapture(self.index)
         width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
@@ -169,10 +168,10 @@ class Landmarker():
             try:
                 if num_hands >= 1:
                     first = self.check_pose(status_fingers, 0)
-                    #Client.recieve_command(self.pose_to_cmd(first).encode('utf-8'))
+                    command_queue.put(self.pose_to_cmd(first))
                 if num_hands >= 2:
                     second = self.check_pose(status_fingers, 1)
-                    #Client.recieve_command(self.pose_to_cmd(second).encode('utf-8'))
+                    command_queue.put(self.pose_to_cmd(second))
             except IndexError:
                 # Most likely because hands offscreen, ignore
                 pass
