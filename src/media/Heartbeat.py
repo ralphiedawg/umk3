@@ -22,7 +22,7 @@ class Heartbeat(Communication):
             )
         )
     @staticmethod
-    def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "Not Playing"):
+    def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "not_playing "):
         return(json.dumps(
                 {
                     'type': 'heartbeat',
