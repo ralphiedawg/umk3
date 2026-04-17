@@ -11,7 +11,7 @@ import media_controls as controls
 class Client:
     defaultAddr = '127.0.0.1'
     defaultPort = 2022
-    def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client', mediaStatus = 'Not Playing'):
+    def __init__(self, addr:str=defaultAddr, port:int=defaultPort, deviceType:str='client', mediaStatus = 'not_playing'):
         self.addr = addr
         self.port = port
         self.deviceType = deviceType
@@ -43,7 +43,7 @@ class Client:
     # 2-in-1 getter setter to enforce status rules
     def playStatus(self, status:str = ''):
         if status != '':
-            if status != 'not_playing' or 'playing' or 'paused' or 'stopped': self.mediaStatus = status
+            if status not in ('not_playing','playing','paused','stopped'): self.mediaStatus = status
             else:
                 print("Invalid Status Input")
         else: 
@@ -56,8 +56,12 @@ class Client:
             self.socket.sendall(heartbeat_string.encode())
             time.sleep(10)
     def listen_for_command(self):
-        received = self.socket.recv(1024)
-        self.receive_command(received)
+        while True:
+            received = self.socket.recv(1024)
+            jsonStr = json.loads(received.decode())
+            if jsonStr.get('type') == 'command':
+                command = jsonStr['command']
+                self.receive_command(command.encode())
 
     def run(self):
         threading.Thread(target=self.listen_for_command, daemon=False).start()

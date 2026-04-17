@@ -73,7 +73,7 @@ class Server():
             "device-id": 0, 
             "timestamp": "Thu Apr 16 14:26:38 2026", 
             "device-type": "client", 
-            "playStatus": "Not Playing"
+            "playStatus": "not_playing"
         }
     """
     def parse_heartbeat(self, heartbeat):
@@ -87,8 +87,8 @@ class Server():
 
             if (not self.active_client) or (
                 self.active_client['timestamp'] < ts and 
-                play_status in ('playing') # Add back 'paused' if issues occur
-            ): #Complex if statements > nested ones
+                play_status == 'playing' 
+            ): 
                 self.active_client['id'] = device_id
                 self.active_client['timestamp'] = ts
                 self.active_client['media_status'] = play_status
@@ -97,7 +97,6 @@ class Server():
                 return device_id
         except KeyError:
             print('Key not found, ensure that all data transferred properly')
-        return 1
         return -1
 
     def _socket_listener(self):
@@ -127,7 +126,7 @@ class Server():
                     self.listening = False
                     try:
                         self.active_client['socket'].sendall(json.dumps({'type': 'command', 'command': command}).encode())
-                    except json.JSONDecodeError:
+                    except:
                         print(f"Failed to send command to client {self.active_client['id']}")
             time.sleep(0.1)
 

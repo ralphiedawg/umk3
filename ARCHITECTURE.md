@@ -120,14 +120,14 @@ UMK3 is a universal media controller that uses hand gesture recognition to contr
 - [x] Send commands to active client via socket instead of local execution
 
 ### Phase 5: Listen Mode
-- [ ] Add state tracking to `Server.py`: `listening`, `listen_timestamp`, `listen_timeout`
-- [ ] Implement in gesture thread: Check listen window before sending command
+- [x] Add state tracking to `Server.py`: `listening`, `listen_timestamp`, `listen_timeout`
+- [x] Implement in gesture thread: Check listen window before sending command
 
 ### Phase 6: Integration & Testing
-- [ ] Update `main.py`: Server mode runs Landmarker, Client mode sends heartbeats
-- [ ] Test multi-client scenarios (2+ devices in different rooms)
-- [ ] Verify heartbeat-based routing works correctly
-- [ ] Verify listen mode gates commands properly
+- [x] Update `main.py`: Server mode runs Landmarker, Client mode sends heartbeats
+- [x] Test multi-client scenarios (2+ devices in different rooms)
+- [x] Verify heartbeat-based routing works correctly
+- [x] Verify listen mode gates commands properly
 
 ---
 
