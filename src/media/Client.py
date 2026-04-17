@@ -1,7 +1,9 @@
 import socket
 import json
-#import threading
-#import Heartbeat
+import threading
+import time
+
+from Heartbeat import Heartbeat
 #if __name__ == "__main__":
 import media_controls as controls
 #else:
@@ -41,23 +43,28 @@ class Client:
     # 2-in-1 getter setter to enforce status rules
     def playStatus(self, status:str = ''):
         if status != '':
-            if status != 'Not Playing' or 'Playing' or 'Paused' or 'Stopped': self.mediaStatus = status
+            if status != 'not_playing' or 'playing' or 'paused' or 'stopped': self.mediaStatus = status
             else:
                 print("Invalid Status Input")
         else: 
             return self.mediaStatus
 
-    def run(self):
+    def beat_heart(self):
+        h = Heartbeat(self)
+        while True:
+            heartbeat_string = h.heartbeat()
+            self.socket.sendall(heartbeat_string.encode())
+            time.sleep(10)
+    def listen_for_command(self):
         received = self.socket.recv(1024)
-        return self.receive_command(received)
+        self.receive_command(received)
 
-    """
-    def beat_heart(self, server:str = '127.0.1', port:int = 2202):
-        heart = Heartbeat.Heartbeat(self)
-        beat = heart.heartbeat()
-    """
-
+    def run(self):
+        threading.Thread(target=self.listen_for_command, daemon=False).start()
+        threading.Thread(target=self.beat_heart, daemon=False).start()
+        
 
 if __name__ == "__main__":
     ctl = Client()
     ctl.connect()
+    ctl.run()
