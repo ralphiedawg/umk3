@@ -34,27 +34,28 @@ class ServiceRegistry():
         self.zc.close()
 
 class Listener(ServiceListener):
-    def add_service(self, zc: Zeroconf, type_: str, name: str):
-        info = zc.get_service_info(type_, name)
-        infoString = json.dumps(
-            {
-                'serviceName': name,
-                'addresses': info.parsed_addresses(),
-                'port': info.port
-            }
-        )
-        print(infoString)
+    def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
+        info = zc.get_service_info(type_, name) 
+        if not info:
+            return
+
+        data = {
+            'serviceName': name,
+            'addresses': info.parsed_addresses(),
+            'port': info.port
+        }
+        
+        print(json.dumps(data))
+
         with open('known_services.json', 'w') as file:
-            json.dump(infoString, file)
-        return(infoString)
+            json.dump(data, file, indent = 4)
+
 
     def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        #return super().update_service(zc, type_, name)
-        pass
+        return super().update_service(zc, type_, name)
 
     def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        #return super().remove_service(zc, type_, name)
-        pass
+        return super().remove_service(zc, type_, name)
 
 if __name__ == "__main__":
     mode = input("Mode: ")
