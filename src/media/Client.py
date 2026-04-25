@@ -45,14 +45,13 @@ class Client:
                         shake_socket.connect((data['addresses'][i], data['port']))
                         try:
                             handshake = json.loads(shake_socket.recv(1024).decode())
-                            if handshake['umk'] == 'True':
+                            if handshake['umk'] == True:
                                 shake_socket.send('22'.encode())
                                 valid_servers.append((data['addresses'][i], data['port']))
                             else:
                                 print('Address is not a UMK server, moving on')
                         except json.JSONDecodeError or KeyError:
                             print('Either not UMK server or incomplete data')
-                        shake_socket.close()
                     except ConnectionError:
                         print('Server unreachable, moving on')
             finally:
@@ -99,7 +98,8 @@ class Client:
     # 2-in-1 getter setter to enforce status rules
     def playStatus(self, status:str = ''):
         if status != '':
-            if status not in ('not_playing','playing','paused','stopped'): self.mediaStatus = status
+            if status in ('not_playing','playing','paused','stopped'): 
+                self.mediaStatus = status
             else:
                 print("Invalid Status Input")
         else: 

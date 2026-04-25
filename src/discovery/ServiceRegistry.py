@@ -50,7 +50,6 @@ class Listener(ServiceListener):
         with open('known_services.json', 'w') as file:
             json.dump(data, file, indent = 4)
 
-
     def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         #return super().update_service(zc, type_, name)
         pass

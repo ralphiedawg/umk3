@@ -135,7 +135,6 @@ class Server():
 
                 self.listening = time.time() - self.listen_timestamp <= self.listen_timeout
 
-
                 if (self.active_client and self.listening):
                     self.listening = False
                     try:
