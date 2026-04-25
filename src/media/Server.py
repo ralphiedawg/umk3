@@ -100,12 +100,22 @@ class Server():
             print('Key not found, ensure that all data transferred properly')
         return -1
 
+    def handshake(self):
+        handshake = json.dumps({'umk': 'True'})
+        return handshake.encode('utf-8')
+
     def _socket_listener(self):
         while True:
             self.socket.listen()
             connection, addr = self.socket.accept()
-            thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
-            thread.start()
+            connection.sendall(self.handshake())
+            resp = connection.recv(1024).decode()
+            if int(resp) == 22: # 22 cause we still gotta make sure that it's def a umk client idc if redundant, custom OK code just to make sure
+                print('Client verified, beginning server loop w/ client')
+                thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
+                thread.start()
+            else:
+                print('Unable to verify whether client is an UMK client, exiting')
 
 
     def run_server(self):

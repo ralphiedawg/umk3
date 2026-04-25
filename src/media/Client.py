@@ -27,12 +27,35 @@ class Client:
         print('Searching for server, sleeping for 5 seconds')
         time.sleep(5)
 
-        with open('known_services.json', 'r') as file:
-            data = json.load(file)
-            self.addr = data['addresses'][0]
-            self.port = data['port']
             # TODO: CHeck all addreses to see if they work, use the first one that does? Ask client which they'd prefer?
             # Get host name from addr to select.
+
+    def test_servers(self) -> tuple[str, int]:
+        server = ('', 0)
+        with open('known_services.json', 'r') as file:
+            data = json.load(file)
+            shake_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            shake_socket.settimeout(2)
+            # send UMK handshake, otherwise don't include in list
+            try:
+                for i in range(len(data['addresses']) - 1):
+                    try:
+                        shake_socket.connect((data['addresses'][i], data['port']))
+                        try:
+                            handshake = json.loads(shake_socket.recv(1024).decode())
+                            if handshake['umk'] == 'True':
+                                shake_socket.send('22'.encode())
+                            else:
+                                print('Address is not UMK, moving on')
+                        except json.JSONDecodeError or KeyError:
+                            print('Either not UMK server or incomplete data')
+                    except ConnectionError:
+                        print('Server unreachable, moving on')
+            finally:
+                shake_socket.close()
+
+        return server
+        
 
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
