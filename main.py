@@ -22,4 +22,4 @@ else:
     client.connect()
     client.run()
     
-#TODO: Graceful error handling
+#TODO: Graceful exit handling
