@@ -10,6 +10,7 @@ if __name__ == "__main__":
 from multiprocessing import Process, Queue
 
 from ..gesture.Landmarker import Landmarker
+from ..discovery.ServiceRegistry import ServiceRegistry
 
 def gesture_detection_worker(command_queue):
          landmarker = Landmarker()
@@ -99,15 +100,28 @@ class Server():
             print('Key not found, ensure that all data transferred properly')
         return -1
 
+    def handshake(self):
+        handshake = json.dumps({'umk': True})
+        return handshake.encode('utf-8')
+
     def _socket_listener(self):
         while True:
             self.socket.listen()
             connection, addr = self.socket.accept()
-            thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
-            thread.start()
+            connection.sendall(self.handshake())
+            resp = connection.recv(1024).decode()
+            if int(resp) == 22: # 22 cause we still gotta make sure that it's def a umk client idc if redundant, custom OK code just to make sure
+                print('Client verified, beginning server loop w/ client')
+                thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
+                thread.start()
+            else:
+                print('Unable to verify whether client is an UMK client, exiting')
 
 
     def run_server(self):
+        registry = ServiceRegistry()
+        registry.register()
+        
         threading.Thread(target=self._socket_listener, daemon=True).start()
 
         Process(target=gesture_detection_worker,args = (self.command_queue,), daemon=True).start()
@@ -120,7 +134,6 @@ class Server():
                     self.listen_timestamp = time.time()
 
                 self.listening = time.time() - self.listen_timestamp <= self.listen_timeout
-
 
                 if (self.active_client and self.listening):
                     self.listening = False

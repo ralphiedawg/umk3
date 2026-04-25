@@ -208,3 +208,6 @@ __marimo__/
 # 
 out.mp4
 */.DS_store
+.DS_store
+
+known_services.json
