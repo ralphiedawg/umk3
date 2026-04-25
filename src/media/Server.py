@@ -13,8 +13,8 @@ from src.gesture.Landmarker import Landmarker
 from src.discovery.ServiceRegistry import ServiceRegistry
 
 def gesture_detection_worker(command_queue):
-         landmarker = Landmarker()
-         landmarker.open_cam(command_queue)
+    landmarker = Landmarker()
+    landmarker.open_cam(command_queue)
 
 class Server():
     def __init__(self, addr:str = '127.0.0.1', port:int = 2022):
@@ -35,6 +35,7 @@ class Server():
         self.listen_timeout = 5 
 
         self.command_queue = Queue()
+        self.registry = None
 
     def on_new_client(self, clientsocket: socket.socket, addr):
         with self.id_lock:
@@ -119,8 +120,8 @@ class Server():
 
 
     def run_server(self):
-        registry = ServiceRegistry()
-        registry.register()
+        self.registry = ServiceRegistry()
+        self.registry.register()
         
         threading.Thread(target=self._socket_listener, daemon=True).start()
 
@@ -142,6 +143,13 @@ class Server():
                     except:
                         print(f"Failed to send command to client {self.active_client['id']}")
             time.sleep(0.1)
+
+    def shutdown(self):
+        print('\nShutting down server...')
+        if self.registry:
+            self.registry.unregister()
+        self.socket.close()
+        print('Server shutdown complete.')
 
 if __name__ == "__main__":
     S1 = Server()
