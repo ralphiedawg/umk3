@@ -1,5 +1,6 @@
 import argparse
-import server
+from src.media.Server import Server
+from src.media.Client import Client
 
 parser = argparse.ArgumentParser(description="UMK - the universal media kontroller")
 
