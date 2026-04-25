@@ -24,14 +24,16 @@ class Client:
         listener = Listener()
         zc = Zeroconf()
         _ = ServiceBrowser(zc, '_umk._tcp.local.', listener) # Not static so we need some way to call it
-        print('Searching for server, sleeping for 5 seconds')
+        print('Searching for servers, sleeping for 5 seconds')
         time.sleep(5)
+        chosen_server = self.test_servers()
+        self.addr = chosen_server[0]
+        self.port = chosen_server[1]
 
-            # TODO: CHeck all addreses to see if they work, use the first one that does? Ask client which they'd prefer?
-            # Get host name from addr to select.
 
     def test_servers(self) -> tuple[str, int]:
         server = ('', 0)
+        valid_servers = []
         with open('known_services.json', 'r') as file:
             data = json.load(file)
             shake_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,14 +47,28 @@ class Client:
                             handshake = json.loads(shake_socket.recv(1024).decode())
                             if handshake['umk'] == 'True':
                                 shake_socket.send('22'.encode())
+                                valid_servers.append((data['addresses'][i], data['port']))
                             else:
-                                print('Address is not UMK, moving on')
+                                print('Address is not a UMK server, moving on')
                         except json.JSONDecodeError or KeyError:
                             print('Either not UMK server or incomplete data')
+                        shake_socket.close()
                     except ConnectionError:
                         print('Server unreachable, moving on')
             finally:
                 shake_socket.close()
+
+        if len(valid_servers) > 1:
+            print('Multiple Valid Servers found, please select from list')
+            for s in range(len(valid_servers)):
+                ip = valid_servers[s][0]
+                hostname = socket.gethostbyaddr(ip)
+                port = valid_servers[s][1]
+                print(f'{s}: {hostname} with port {port} (IP :{ip})')
+            choice = int(input('Index: '))
+            server = valid_servers[choice]
+        else:
+            server = valid_servers[0]
 
         return server
         
