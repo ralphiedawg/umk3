@@ -40,7 +40,7 @@ class Client:
             shake_socket.settimeout(2)
             # send UMK handshake, otherwise don't include in list
             try:
-                for i in range(len(data['addresses']) - 1):
+                for i in range(len(data['addresses'])):
                     try:
                         shake_socket.connect((data['addresses'][i], data['port']))
                         try:
