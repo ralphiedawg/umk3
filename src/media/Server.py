@@ -101,7 +101,7 @@ class Server():
         return -1
 
     def handshake(self):
-        handshake = json.dumps({'umk': 'True'})
+        handshake = json.dumps({'umk': True})
         return handshake.encode('utf-8')
 
     def _socket_listener(self):
