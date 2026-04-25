@@ -28,7 +28,7 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
             - [x] Multi-Threading
                 - [x] One Thread to Send Heartbeat
                 - [x] Another to Listen for Commands
-    - [ ] Device Discovery -- Zeroconf (Bonjour)
+    - [x] Device Discovery -- Zeroconf (Bonjour)
     - [x] Turn Simple Server-Client into One Server, multiple clients -- KNET
 - [x] Gesture Identification
     - [x] Basic Hand Landmarking
