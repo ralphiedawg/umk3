@@ -5,12 +5,9 @@ import time
 
 from zeroconf import Zeroconf, ServiceBrowser
 
-from Heartbeat import Heartbeat
-#if __name__ == "__main__":
-import media_controls as controls
-#else:
-#import src.media.media_controls as controls
-from ..discovery.ServiceRegistry import Listener
+from src.media.Heartbeat import Heartbeat
+from src.media import media_controls as controls
+from src.discovery.ServiceRegistry import Listener
 
 class Client:
     defaultAddr = '127.0.0.1'
@@ -21,14 +18,15 @@ class Client:
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
 
-        listener = Listener()
-        zc = Zeroconf()
-        _ = ServiceBrowser(zc, '_umk._tcp.local.', listener) # Not static so we need some way to call it
-        print('Searching for servers, sleeping for 5 seconds')
-        time.sleep(5)
-        chosen_server = self.test_servers()
-        self.addr = chosen_server[0]
-        self.port = chosen_server[1]
+        if self.addr == self.defaultAddr:
+            listener = Listener()
+            zc = Zeroconf()
+            _ = ServiceBrowser(zc, '_umk._tcp.local.', listener) # Not static so we need some way to call it
+            print('Searching for servers, sleeping for 5 seconds')
+            time.sleep(5)
+            chosen_server = self.test_servers()
+            self.addr = chosen_server[0]
+            self.port = chosen_server[1]
 
 
     def test_servers(self) -> tuple[str, int]:

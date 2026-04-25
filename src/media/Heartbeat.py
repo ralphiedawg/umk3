@@ -1,9 +1,7 @@
-from Communication import Communication
 import json
 import time
-#from Client import Client
 
-class Heartbeat(Communication):
+class Heartbeat():
     device_id = 0
     def __init__(self, device):
         self.device = device

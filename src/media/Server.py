@@ -4,13 +4,13 @@ import json
 import time
 
 if __name__ == "__main__":
-         import multiprocessing
-         multiprocessing.set_start_method('spawn', force=True)
+    import multiprocessing
+    multiprocessing.set_start_method('spawn', force=True)
 
 from multiprocessing import Process, Queue
 
-from ..gesture.Landmarker import Landmarker
-from ..discovery.ServiceRegistry import ServiceRegistry
+from src.gesture.Landmarker import Landmarker
+from src.discovery.ServiceRegistry import ServiceRegistry
 
 def gesture_detection_worker(command_queue):
          landmarker = Landmarker()
