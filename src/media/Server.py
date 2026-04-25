@@ -13,7 +13,7 @@ def gesture_detection_worker(command_queue):
     landmarker.open_cam(command_queue)
 
 class Server():
-    def __init__(self, addr:str = '127.0.0.1', port:int = 2022):
+    def __init__(self, addr:str = '0.0.0.0', port:int = 2022):
         self.addr = addr
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,16 +33,7 @@ class Server():
         self.command_queue = Queue()
         self.registry = None
 
-    def on_new_client(self, clientsocket: socket.socket, addr):
-        with self.id_lock:
-            self.next_client_id += 1
-            id = self.next_client_id
-
-        self.clients[id] = {'addr': addr, 'socket': clientsocket}
-        clientsocket.sendall(json.dumps({'type':'id_assignment', 'id': id}).encode())
-
-        print(f'Client with address {addr} assigned id {id}')
-        
+    def on_new_client(self, clientsocket: socket.socket, client_id: int):
         while True:
             try:
                 data = clientsocket.recv(1024)
@@ -63,7 +54,7 @@ class Server():
             except TimeoutError:
                 continue
             except json.JSONDecodeError:
-                print(f'Recieved invalid json from client {id}')
+                print(f'Recieved invalid json from client {client_id}')
 
     """
         {
@@ -106,13 +97,32 @@ class Server():
             self.socket.listen()
             connection, addr = self.socket.accept()
             connection.sendall(self.handshake())
-            resp = connection.recv(1024).decode()
-            if int(resp) == 22: # 22 cause we still gotta make sure that it's def a umk client idc if redundant, custom OK code just to make sure
-                print('Client verified, beginning server loop w/ client')
-                thread = threading.Thread(target=self.on_new_client, args = (connection, addr))
-                thread.start()
-            else:
-                print('Unable to verify whether client is an UMK client, exiting')
+            try:
+                resp = connection.recv(1024).decode()
+                if not resp:
+                    print(f'No response from {addr}, closing connection')
+                    connection.close()
+                    continue
+                if int(resp) == 22:
+                    with self.id_lock:
+                        self.next_client_id += 1
+                        client_id = self.next_client_id
+                    
+                    self.clients[client_id] = {'addr': addr, 'socket': connection}
+                    connection.sendall(json.dumps({'type':'id_assignment', 'id': client_id}).encode())
+                    print(f'Client with address {addr} assigned id {client_id}')
+                    
+                    thread = threading.Thread(target=self.on_new_client, args = (connection, client_id))
+                    thread.start()
+                else:
+                    print(f'Invalid handshake response from {addr}: {resp}')
+                    connection.close()
+            except ValueError as e:
+                print(f'Error parsing handshake response from {addr}: {e}')
+                connection.close()
+            except Exception as e:
+                print(f'Error in handshake with {addr}: {e}')
+                connection.close()
 
 
     def run_server(self):

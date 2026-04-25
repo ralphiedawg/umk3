@@ -36,7 +36,6 @@ if __name__ == "__main__":
             mode = "client"
             print(f"App initializing in {mode} mode.")
             client = Client()
-            client.connect()
             client.run()
     except KeyboardInterrupt:
         print('\nExiting...')
