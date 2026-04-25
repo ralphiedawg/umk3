@@ -3,10 +3,6 @@ import threading
 import json
 import time
 
-if __name__ == "__main__":
-    import multiprocessing
-    multiprocessing.set_start_method('spawn', force=True)
-
 from multiprocessing import Process, Queue
 
 from src.gesture.Landmarker import Landmarker
@@ -22,8 +18,8 @@ class Server():
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        self.socket.bind((addr, port))
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind((addr, port))
 
         self.clients = {}
         self.active_client = {}
@@ -120,7 +116,7 @@ class Server():
 
 
     def run_server(self):
-        self.registry = ServiceRegistry()
+        self.registry = ServiceRegistry(port=self.port)
         self.registry.register()
         
         threading.Thread(target=self._socket_listener, daemon=True).start()
