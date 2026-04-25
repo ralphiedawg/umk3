@@ -10,6 +10,7 @@ if __name__ == "__main__":
 from multiprocessing import Process, Queue
 
 from ..gesture.Landmarker import Landmarker
+from ..discovery.ServiceRegistry import ServiceRegistry
 
 def gesture_detection_worker(command_queue):
          landmarker = Landmarker()
@@ -108,6 +109,9 @@ class Server():
 
 
     def run_server(self):
+        registry = ServiceRegistry()
+        registry.register()
+        
         threading.Thread(target=self._socket_listener, daemon=True).start()
 
         Process(target=gesture_detection_worker,args = (self.command_queue,), daemon=True).start()
