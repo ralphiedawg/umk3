@@ -52,10 +52,12 @@ class Listener(ServiceListener):
 
 
     def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        return super().update_service(zc, type_, name)
+        #return super().update_service(zc, type_, name)
+        pass
 
     def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        return super().remove_service(zc, type_, name)
+        #return super().remove_service(zc, type_, name)
+        pass
 
 if __name__ == "__main__":
     mode = input("Mode: ")

@@ -3,11 +3,15 @@ import json
 import threading
 import time
 
+from zeroconf import Zeroconf, ServiceBrowser
+
 from Heartbeat import Heartbeat
 #if __name__ == "__main__":
 import media_controls as controls
 #else:
 #import src.media.media_controls as controls
+from ..discovery.ServiceRegistry import Listener
+
 class Client:
     defaultAddr = '127.0.0.1'
     defaultPort = 2022
@@ -16,6 +20,19 @@ class Client:
         self.port = port
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
+
+        listener = Listener()
+        zc = Zeroconf()
+        _ = ServiceBrowser(zc, '_umk._tcp.local.', listener) # Not static so we need some way to call it
+        print('Searching for server, sleeping for 5 seconds')
+        time.sleep(5)
+
+        with open('known_services.json', 'r') as file:
+            data = json.load(file)
+            self.addr = data['addresses'][0]
+            self.port = data['port']
+            # TODO: CHeck all addreses to see if they work, use the first one that does? Ask client which they'd prefer?
+            # Get host name from addr to select.
 
     def connect(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
