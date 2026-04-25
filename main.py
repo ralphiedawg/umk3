@@ -13,7 +13,13 @@ mode = 'client'
 if args.server:
     mode = "server"
     print(f"App initializing in {mode} mode.")
+    server = Server()
+    server.run_server()
 else:
     mode = "client"
     print(f"App initializing in {mode} mode.")
+    client = Client()
+    client.connect()
+    client.run()
     
+#TODO: Graceful error handling
