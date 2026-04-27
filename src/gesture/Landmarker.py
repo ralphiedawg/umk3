@@ -1,4 +1,6 @@
 import os
+import json
+
 import cv2 as cv
 import mediapipe as mp
 from multiprocessing import Queue
@@ -63,17 +65,9 @@ class Landmarker():
     def check_pose(finger_data, index):
         """Check the passed hands data against the dictionary of hand poses"""
         # 0-4, 0 being thumb. True means extended
-        poses = {
-            "open_palm": [True, True, True, True, True],
-            "peace": [False, True, True, False, False],
-            "shaka": [True, False, False, False, True],
-            "closed_fist": [False, False, False, False, False],
-            "i": [False, False, False, False, True],
-            "point": [False, True, False, False, False],
-            "spiderman": [False, True, False, False, True],
-            "justin": [False, False, True, False, False],
-            "rock_on": [True, True, False, False, True]
-        }
+        with open('config/gestures.json', 'r') as file:
+            gestures = json.load(file)
+            poses = gestures['poses']
 
         target = finger_data[index]
         pose = [key for key, val in poses.items() if val == target]
@@ -125,13 +119,9 @@ class Landmarker():
 
     @staticmethod
     def pose_to_cmd(pose):
-        commands = {
-            "open_palm": "pause",
-            "i":"back5",
-            "point":"skip5",
-            "shaka":"listen",
-        }
-
+        with open('config/gestures.json', 'r') as file:
+            file = json.load(file)
+            commands = file['commands']
         print(commands.get(pose, "No command found"))
         return commands.get(pose, "No command found")
 

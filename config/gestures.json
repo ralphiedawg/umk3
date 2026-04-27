@@ -1,0 +1,32 @@
+{
+    "poses": {
+        "open_palm": [true, true, true, true, true],
+        "peace": [false, true, true, false, false],
+        "shaka": [true, false, false, false, true],
+        "closed_fist": [false, false, false, false, false],
+        "i": [false, false, false, false, true],
+        "point": [false, true, false, false, false],
+        "spiderman": [false, true, false, false, true],
+        "justin": [false, false, true, false, false],
+        "rock_on": [true, true, false, false, true]
+    },
+    "commands": {
+        "open_palm": "pause",
+        "i": "back5",
+        "point": "skip5",
+        "shaka": "listen"
+    },
+    "distance_gestures": {
+        "peace": {
+            "window_duration": 2,
+            "stabilization_wait": 0.5,
+            "command_type": "volume",
+            "finger_indices": [8, 4],
+            "distance_range": [0.05, 0.3],
+            "steps": 20,
+            "min_distance": 0.05,
+            "max_distance": 0.3
+        }
+    }
+}
+
