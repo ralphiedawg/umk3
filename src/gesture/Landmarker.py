@@ -8,6 +8,7 @@ from multiprocessing import Queue
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
+config_path = 'config/gestures.json'
 #FPS = 60
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
@@ -65,7 +66,7 @@ class Landmarker():
     def check_pose(finger_data, index):
         """Check the passed hands data against the dictionary of hand poses"""
         # 0-4, 0 being thumb. True means extended
-        with open('config/gestures.json', 'r') as file:
+        with open(config_path, 'r') as file:
             gestures = json.load(file)
             poses = gestures['poses']
 
@@ -119,7 +120,7 @@ class Landmarker():
 
     @staticmethod
     def pose_to_cmd(pose):
-        with open('config/gestures.json', 'r') as file:
+        with open(config_path, 'r') as file:
             file = json.load(file)
             commands = file['commands']
         print(commands.get(pose, "No command found"))
