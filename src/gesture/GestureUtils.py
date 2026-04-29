@@ -10,3 +10,13 @@ class gestureutils:
 
         dist = math.dist((tip1.x, tip1.y), (tip2.x, tip2.y))
         return dist
+    @staticmethod
+    def normalize_quantize(dist: float, min_dist: float, max_dist: float, steps: int) -> float:
+        """ Converts given distance to the increments"""
+        if dist <= min_dist:
+            percent = 0.0
+        elif dist >= max_dist:
+            percent = 1.0
+        else: 
+            percent = (dist - min_dist) / (max_dist - min_dist)
+        return round(percent * steps) / steps
