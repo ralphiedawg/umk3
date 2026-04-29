@@ -119,15 +119,21 @@ class Client:
 
     def listen_for_command(self):
         self.socket.settimeout(1)
+        buffer = ""
         while True:
             try:
                 received = self.socket.recv(1024)
                 if not received:
                     break
-                jsonStr = json.loads(received.decode())
-                if jsonStr.get('type') == 'command':
-                    command = jsonStr['command']
-                    self.receive_command(command.encode())
+                buffer += received.decode()
+                
+                while '\n' in buffer:
+                    line, buffer = buffer.split('\n', 1)
+                    if line:
+                        jsonStr = json.loads(line)
+                        if jsonStr.get('type') == 'command':
+                            command = jsonStr['command']
+                            self.receive_command(command.encode())
             except socket.timeout:
                 continue
             except Exception as e:

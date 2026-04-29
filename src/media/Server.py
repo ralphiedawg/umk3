@@ -40,7 +40,7 @@ class Server():
                 if not data:
                     print('Failed to Receive Data')
                 
-                heartbeat_str = data.decode()
+                heartbeat_str = data.decode().strip()
                 print(heartbeat_str)
                 active = self.parse_heartbeat(heartbeat_str) == True
                 resp = json.dumps(
@@ -48,7 +48,7 @@ class Server():
                         'type':'acknowledgement',
                         'active': active
                     }
-                )
+                ) + '\n'
 
                 clientsocket.sendall(resp.encode())
             except TimeoutError:
@@ -167,7 +167,7 @@ class Server():
                         try:
                             print(f"Sending command {command} to client {self.active_client['id']}")
                             self.active_client['socket'].sendall(
-                                json.dumps({'type': 'command', 'command': command}).encode()
+                                (json.dumps({'type': 'command', 'command': command}) + '\n').encode()
                             )
                         except Exception as e:
                             print(f"Failed to send command {command} to client {self.active_client['id']}: {e}")
