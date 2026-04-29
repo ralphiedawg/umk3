@@ -133,22 +133,54 @@ class Server():
 
         Process(target=gesture_detection_worker,args = (self.command_queue,), daemon=True).start()
 
+        self.listening = False
+        self.listen_timestamp = 0
+        self.stabilizaiton_delay = .125
+
         while True:
+            if self.listening and (time.time() - self.listen_timestamp >= self.listen_timeout):
+                print('Window for listening expired')
+                self.listening = False
+
             if not self.command_queue.empty():
                 command = self.command_queue.get()
 
-                if command == 'listen':
-                    self.listen_timestamp = time.time()
+                if command == 'No command found' or not command:
+                    continue
 
-                self.listening = time.time() - self.listen_timestamp <= self.listen_timeout
+                if not self.listening:
+                    if command == 'listen':
+                        print('Wake detected, 5 second window activated...')
+                        self.listening = True
+                        self.listen_timestamp = time.time()
+                        
+                        while not self.command_queue.empty():
+                            self.command_queue.get_nowait()
+                else:
+                    if command == 'listen':
+                        self.listen_timestamp = time.time() # Refresh Timestamp
+                        continue
+                    if time.time() - self.listen_timestamp < self.stabilizaiton_delay:
+                        # Wait for them to make a gesture
+                        continue
+                    if self.active_client:
+                        try:
+                            print(f"Sending command {command} to client {self.active_client['id']}")
+                            self.active_client['socket'].sendall(
+                                json.dumps({'type': 'command', 'command': command}).encode()
+                            )
+                        except Exception as e:
+                            print(f"Failed to send command {command} to client {self.active_client['id']}: {e}")
+                    else:
+                        print(f"Command '{command}' detected, but no active client found.")
 
-                if (self.active_client and self.listening):
                     self.listening = False
-                    try:
-                        self.active_client['socket'].sendall(json.dumps({'type': 'command', 'command': command}).encode())
-                    except:
-                        print(f"Failed to send command to client {self.active_client['id']}")
-            time.sleep(0.1)
+                    print('Command executed, sleeping...')
+
+                    while not self.command_queue.empty():
+                        self.command_queue.get_nowait()
+
+                time.sleep(0.05)
 
     def shutdown(self):
         print('\nShutting down server...')
