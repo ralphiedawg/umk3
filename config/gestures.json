@@ -14,7 +14,8 @@
         "open_palm": "pause",
         "i": "back5",
         "point": "skip5",
-        "shaka": "listen"
+        "shaka": "listen",
+        "closed_fist": "skip"
     },
     "distance_gestures": {
         "peace": {

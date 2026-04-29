@@ -135,7 +135,7 @@ class Server():
 
         self.listening = False
         self.listen_timestamp = 0
-        self.stabilizaiton_delay = .125
+        self.stabilizaiton_delay = .18
 
         while True:
             if self.listening and (time.time() - self.listen_timestamp >= self.listen_timeout):

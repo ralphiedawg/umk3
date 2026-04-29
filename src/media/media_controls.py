@@ -1,6 +1,7 @@
 import pynput as pn
+
 from pynput.keyboard import Key
-import time
+import subprocess
 
 def send_cmd(cmd):
     board = pn.keyboard.Controller()
@@ -14,8 +15,10 @@ def send_cmd(cmd):
         board.press(Key.left)
     elif cmd == "skip":
         board.press(Key.media_next)
+        subprocess.run(['nowplaying-cli', 'next'])
     elif cmd == "rewind":
         board.press(Key.media_previous)
+        subprocess.run(['nowplaying-cli', 'previous'])
     else:
         return("Invalid Command")
     return("Command Successful!")
