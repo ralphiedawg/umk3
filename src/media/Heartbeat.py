@@ -14,7 +14,7 @@ class Heartbeat():
                     'device-id': self.device_id,
                     'timestamp': str(time.time()),
                     'device-type': self.device.deviceType,
-                    'playStatus': self.playStatus,
+                    'playStatus': self.device.playStatus(),
                 }
             ) + '\n'
         )
