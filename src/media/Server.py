@@ -62,7 +62,7 @@ class Server():
             "device-id": 0, 
             "timestamp": "Thu Apr 16 14:26:38 2026", 
             "device-type": "client", 
-            "playStatus": "not_playing"
+            "play-status": "not_playing"
         }
     """
     def parse_heartbeat(self, heartbeat):
@@ -72,7 +72,7 @@ class Server():
             device_id = beat['device-id']
             ts = float(beat['timestamp'])
             device_type = beat['device-type']
-            play_status = beat['playStatus']
+            play_status = beat['play-status']
 
             if (not self.active_client) or (
                 self.active_client['timestamp'] < ts and 
