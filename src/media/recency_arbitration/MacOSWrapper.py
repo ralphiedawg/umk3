@@ -28,7 +28,7 @@ class MacOSWrapper:
             playback_rate = playback_rate.decode()
 
         playback_rate = playback_rate.strip()
-        if playback_rate != 'null':
+        if playback_rate not in ('null', '0', 0):
             return True
         return False
 
