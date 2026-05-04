@@ -97,7 +97,7 @@ class Client:
         status = controls.send_cmd(decoded)
         return status
 
-    def playStatus(self):
+    def play_status(self):
         if WrapperHelper.agnostic_media_status():
             return 'playing'
         return 'not_playing'

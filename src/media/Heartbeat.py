@@ -6,7 +6,7 @@ class Heartbeat():
     def __init__(self, device):
         self.device = device
         self.device_id = self.device.id
-        self.playStatus = self.device.playStatus()
+        self.playStatus = self.device.play_status()
     def heartbeat(self):
         return(json.dumps(
                 {
@@ -14,19 +14,19 @@ class Heartbeat():
                     'device-id': self.device_id,
                     'timestamp': str(time.time()),
                     'device-type': self.device.deviceType,
-                    'playStatus': self.device.playStatus(),
+                    'play-status': self.device.play_status(),
                 }
             ) + '\n'
         )
     @staticmethod
-    def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "not_playing "):
+    def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "not_playing"):
         return(json.dumps(
                 {
                     'type': 'heartbeat',
                     'device-id': device_id,
                     'timestamp': timestamp,
                     'device-type': deviceType,
-                    'playStatus': playStatus
+                    'play-status': playStatus
                 }
             )
         )
