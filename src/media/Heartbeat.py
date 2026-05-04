@@ -16,7 +16,7 @@ class Heartbeat():
                     'device-type': self.device.deviceType,
                     'playStatus': self.playStatus,
                 }
-            )
+            ) + '\n'
         )
     @staticmethod
     def heartbeatString(device_id:int = 0, timestamp:str = str(time.time()), deviceType:str = 'client', playStatus:str = "not_playing "):
