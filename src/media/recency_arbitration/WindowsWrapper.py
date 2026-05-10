@@ -1,6 +1,6 @@
 from winsdk.windows.media.control import (
     GlobalSystemMediaTransportControlsSessionManager,
-    MediaPlaybackStatus
+    GlobalSystemMediaTransportControlsSessionPlaybackStatus
 )
 
 
@@ -26,19 +26,18 @@ class WindowsWrapper:
             if manager is None:
                 return False
 
-            # Get the current session (most recent media session)
-            current_session = manager.get_current_session()
-            if current_session is None:
-                return False
-
-            # Get playback info
-            playback_info = current_session.get_playback_info()
-            if playback_info is None:
-                return False
-
-            # Check if playback status is Playing
-            status = playback_info.playback_status
-            return status == MediaPlaybackStatus.PLAYING
+            # Get all sessions and check for any playing
+            sessions = manager.get_sessions()
+            for session in sessions:
+                playback_info = session.get_playback_info()
+                if playback_info is None:
+                    continue
+                
+                status = playback_info.playback_status
+                if status == GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
+                    return True
+            
+            return False
 
         except Exception as e:
             print(f"Error checking playback status: {e}")

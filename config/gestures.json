@@ -13,7 +13,7 @@
     "commands": {
         "open_palm": "pause",
         "i": "back5",
-        "point": "skip5",
+        "rock_on": "skip5",
         "shaka": "listen",
         "closed_fist": "skip"
     },

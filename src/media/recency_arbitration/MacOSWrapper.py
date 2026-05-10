@@ -12,10 +12,8 @@ class MacOSWrapper:
         )
         stdout, stderr = await process.communicate()
         if stdout:
-            print(f'[stdout]\n{stdout.decode()}')
             return stdout
         if stderr:
-            print(f'[stderr]\n{stderr.decode()}')
             return stderr
 
     @staticmethod
