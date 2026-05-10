@@ -1,5 +1,7 @@
 from src.media.recency_arbitration.MacOSWrapper import MacOSWrapper
+from src.media.recency_arbitration.WindowsWrapper import WindowsWrapper
 import platform
+import asyncio
 
 class WrapperHelper:
     @staticmethod
@@ -10,5 +12,9 @@ class WrapperHelper:
                 return True
             return False
         elif os == 'Windows':
-            # Call Windows Wrapper
+            return asyncio.run(WindowsWrapper.is_playing())
+        elif os == 'Linux':
+            # TODO: Implement Linux wrapper using MPRIS over DBUS
             pass
+        return False
+
