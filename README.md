@@ -20,10 +20,9 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
     - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [x] Hearbeat Framework/Basic Layout?
         - [ ] How to find out whether media is currently playing, not just paused?
-            - [ ] Macos: nowplaying-cli
-            - [ ] Windows: `GlobalSystemMediaTransportControlsSessionManager`
+            - [x] Macos: nowplaying-cli
+            - [x] Windows: `GlobalSystemMediaTransportControlsSessionManager`
             - [ ] Linux: `MPRIS` Over DBUS
-            - [ ] Firefox/Chrome extension to create an interface for media controls?
         - [x] Client Loop For Heartbeat
             - [x] Multi-Threading
                 - [x] One Thread to Send Heartbeat
@@ -34,7 +33,7 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
     - [x] Basic Hand Landmarking
     - [x] Calculate Current Hand Gesture
         - [x] Shaka to wake,
-        - [x] V for volume,
+        - [ ] V for volume,
         - [x] Palm for play/pause
 - [ ] Tray APP
     - [ ] Killswitch
