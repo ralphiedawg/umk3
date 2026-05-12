@@ -7,6 +7,7 @@ from multiprocessing import Process, Queue
 
 from src.gesture.Landmarker import Landmarker
 from src.discovery.ServiceRegistry import ServiceRegistry
+from src.media.recency_arbitration.RecencyArbiter import RecencyArbiter
 
 def gesture_detection_worker(command_queue):
     landmarker = Landmarker()
@@ -33,6 +34,8 @@ class Server():
         self.command_queue = Queue()
         self.registry = None
 
+        self.arbiter = RecencyArbiter()
+
     def on_new_client(self, clientsocket: socket.socket, client_id: int):
         while True:
             try:
@@ -41,12 +44,17 @@ class Server():
                     print('Failed to Receive Data')
                 
                 heartbeat_str = data.decode().strip()
+                self.parse_heartbeat(heartbeat_str)
+                arbitration_res = self.arbiter.arbitrate(heartbeat_str)
+                if arbitration_res != 0 and arbitration_res in self.clients:
+                    self.active_client = self.clients[arbitration_res]
+                    print(f'Active client set to id {arbitration_res}')
                 print(heartbeat_str)
-                active = self.parse_heartbeat(heartbeat_str) == True
+                
                 resp = json.dumps(
                     {
                         'type':'acknowledgement',
-                        'active': active
+                        'active': arbitration_res != 0
                     }
                 ) + '\n'
 
@@ -56,36 +64,22 @@ class Server():
             except json.JSONDecodeError:
                 print(f'Recieved invalid json from client {client_id}')
 
-    """
-        {
-            "type": "heartbeat", 
-            "device-id": 0, 
-            "timestamp": "Thu Apr 16 14:26:38 2026", 
-            "device-type": "client", 
-            "playStatus": "not_playing"
-        }
-    """
     def parse_heartbeat(self, heartbeat):
-        """ Process Hearbeat and update server"""
+        """Update client info from heartbeat"""
         beat = json.loads(heartbeat)
         try: 
             device_id = beat['device-id']
             ts = float(beat['timestamp'])
             device_type = beat['device-type']
-            play_status = beat['playStatus']
+            play_status = beat['play-status']
 
-            if (not self.active_client) or (
-                self.active_client['timestamp'] < ts and 
-                play_status == 'playing' 
-            ): 
-                self.active_client['id'] = device_id
-                self.active_client['timestamp'] = ts
-                self.active_client['media_status'] = play_status
-                self.active_client['type'] = device_type
-                self.active_client['socket'] = self.clients[device_id]['socket']
+            if device_id in self.clients:
+                self.clients[device_id]['timestamp'] = ts
+                self.clients[device_id]['media_status'] = play_status
+                self.clients[device_id]['type'] = device_type
                 return device_id
         except KeyError:
-            print('Key not found, ensure that all data transferred properly')
+            print('Key not found in heartbeat, ensure all data transferred properly')
         return -1
 
     def handshake(self):
@@ -108,7 +102,14 @@ class Server():
                         self.next_client_id += 1
                         client_id = self.next_client_id
                     
-                    self.clients[client_id] = {'addr': addr, 'socket': connection}
+                    self.clients[client_id] = {
+                        'addr': addr,
+                        'socket': connection,
+                        'id': client_id,
+                        'timestamp': time.time(),
+                        'media_status': 'not_playing',
+                        'type': 'client'
+                    }
                     connection.sendall(json.dumps({'type':'id_assignment', 'id': client_id}).encode())
                     print(f'Client with address {addr} assigned id {client_id}')
                     

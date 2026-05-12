@@ -30,7 +30,7 @@ if __name__ == "__main__":
         if args.server:
             mode = "server"
             print(f"App initializing in {mode} mode.")
-            server_instance = Server(port=2020)
+            server_instance = Server(port=2022)
             server_instance.run_server()
         else:
             mode = "client"

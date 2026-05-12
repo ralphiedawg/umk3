@@ -7,6 +7,7 @@ from zeroconf import Zeroconf, ServiceBrowser
 
 from src.media.Heartbeat import Heartbeat
 from src.media import media_controls as controls
+from src.media.recency_arbitration.WrapperHelper import WrapperHelper
 from src.discovery.ServiceRegistry import Listener
 
 class Client:
@@ -96,15 +97,10 @@ class Client:
         status = controls.send_cmd(decoded)
         return status
 
-    # 2-in-1 getter setter to enforce status rules
-    def playStatus(self, status:str = ''):
-        if status != '':
-            if status in ('not_playing','playing','paused','stopped'): 
-                self.mediaStatus = status
-            else:
-                print("Invalid Status Input")
-        else: 
-            return self.mediaStatus
+    def play_status(self):
+        if WrapperHelper.agnostic_media_status():
+            return 'playing'
+        return 'not_playing'
 
     def beat_heart(self):
         h = Heartbeat(self)
