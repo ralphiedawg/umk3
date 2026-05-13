@@ -16,10 +16,10 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
 - [x] Basic Media Control Framework
 - [ ] Device Connection Framework
     - [x] Simple communication between devices over LAN
-    - [ ] Server-Client Agnostic (Separate Classes but single script via args)
-    - [ ] Periodic Heartbeat/Pinging (Once every 10s should be fine)
+    - [x] Server-Client Agnostic (Separate Classes but single script via args)
+    - [x] Periodic Heartbeat/Pinging (Once every 10s should be fine)
         - [x] Hearbeat Framework/Basic Layout?
-        - [ ] How to find out whether media is currently playing, not just paused?
+        - [x] How to find out whether media is currently playing, not just paused?
             - [x] Macos: nowplaying-cli
             - [x] Windows: `GlobalSystemMediaTransportControlsSessionManager`
             - [ ] Linux: `MPRIS` Over DBUS
@@ -35,8 +35,9 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
         - [x] Shaka to wake,
         - [ ] V for volume,
         - [x] Palm for play/pause
-- [ ] Tray APP
+- [ ] Tray APP via pystray
     - [ ] Killswitch
+        - [ ] If killswitch active, simply drop all commands
     - [ ] Set Gesture Server Device
 
 (Can you tell I'm used to java OOP?)
