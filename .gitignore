@@ -211,3 +211,5 @@ out.mp4
 .DS_store
 
 known_services.json
+
+src/tray/icons/inkscape.svg
