@@ -7,19 +7,19 @@ import sys
 def send_cmd(cmd):
     board = pn.keyboard.Controller()
     if cmd == "pause":
-        board.press(Key.media_play_pause)
+        board.tap(Key.media_play_pause)
     elif cmd == "mute":
-        board.press(Key.media_volume_mute)
+        board.tap(Key.media_volume_mute)
     elif cmd == "skip5":
-        board.press(Key.right)
+        board.tap(Key.right)
     elif cmd == "back5":
-        board.press(Key.left)
+        board.tap(Key.left)
     elif cmd == "skip":
-        board.press(Key.media_next)
+        board.tap(Key.media_next)
         if sys.platform == 'darwin':
             subprocess.run(['nowplaying-cli', 'next'])
     elif cmd == "rewind":
-        board.press(Key.media_previous)
+        board.tap(Key.media_previous)
         if sys.platform == 'darwin':
             subprocess.run(['nowplaying-cli', 'previous'])
     else:
