@@ -39,5 +39,16 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
     - [ ] Killswitch
         - [ ] If killswitch active, simply drop all commands
     - [ ] Set Gesture Server Device
+- [ ] Extension
+    - [x] Media Controls Via Chrome Extension
+    - [x] Websocket to communicate between python and extension
+    - [x] Send commands over websocket
+    - [ ] Read from umk3/config/config.json to see if extension enabled (CLIENT ONLY)
+        - [ ] If media found on device and in the tab (active tab only), pass all commands to extension
+            - [ ] Find source of active media and include that in heartbeat?
+                - [ ] If chrome, pass to extension
+                - [ ] if else, pass to python
+    - [ ] Move websocket to connect in background, nothing happens if client unreachable
+
 
 (Can you tell I'm used to java OOP?)
