@@ -18,6 +18,7 @@ class Client:
         self.port = port
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
+        self.killswitch = False
 
         if self.addr == self.defaultAddr:
             listener = Listener()
@@ -104,7 +105,7 @@ class Client:
 
     def beat_heart(self):
         h = Heartbeat(self)
-        while True:
+        while not self.killswitch:
             try:
                 heartbeat_string = h.heartbeat()
                 self.socket.sendall(heartbeat_string.encode())
@@ -116,7 +117,7 @@ class Client:
     def listen_for_command(self):
         self.socket.settimeout(1)
         buffer = ""
-        while True:
+        while not self.killswitch:
             try:
                 received = self.socket.recv(1024)
                 if not received:
