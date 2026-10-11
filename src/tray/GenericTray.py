@@ -40,6 +40,12 @@ class TrayApp():
         self.mode = mode
         self.server_port = server_port
 
+        self.client = None
+        self.server = None
+
+        self.client_thread = None
+        self.server_thread = None
+
         img_data = cast(bytes, cairosvg.svg2png(url = icon_url)) # type safety i guess?
         self.img = Image.open(io.BytesIO(img_data))
 
@@ -55,11 +61,14 @@ class TrayApp():
             )
 
     def quit(self, icon, item):
+        if self.server:
+            self.server.shutdown()
+        if self.client:
+            self.client.shutdown()
         icon.stop()   
 
     def mode_toggle(self, icon, item):
-        if self.mode == 'Client':
-            self.mode = 'Server'
+        if self.mode == 'Client': self.mode = 'Server'
         else:
             self.mode = 'Client'
         print("Operation mode switched to " + self.mode)
@@ -68,20 +77,38 @@ class TrayApp():
     def initialize(self):
         print(f'Initializing in {self.mode} mode...')
         if self.mode == 'Client':
+            if self.server:
+                self.server.shutdown()
+                self.server = None
+
+            if self.client:
+                print('Client already running')
+                return
+
             self.client = Client()
-            self.client_thread = threading.Thread(target=self.client.run)
+            self.client_thread = threading.Thread(target=self.client.run, daemon=True)
             self.client_thread.start()
+
         else:
             if self.client:
-                del self.client
+                self.client.shutdown()
+                self.client = None
+
+            if self.server:
+                print('Server already running')
+                return
+
             self.server = Server(port = self.server_port)
-            self.server.run_server()
+            print('Sever Created')
+            self.server_thread = threading.Thread(target=self.server.run_server, daemon=True)
+            self.server_thread.start()
+            print('Run Command sent')
 
     def run(self):
         self.icon.run()
      
 if __name__ == "__main__":
-    #T = TrayApp('icons/UMKSVG24.svg')
-    #T.run()
-    s = Server()
-    s.run_server()
+    T = TrayApp('icons/UMKSVG24.svg')
+    T.run()
+    #s = Server()
+    #s.run_server()
