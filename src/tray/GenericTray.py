@@ -10,19 +10,6 @@ from typing import cast
 import threading
 import io
 
-"""
-TODO:
-3. Killswitch:
-    a. 'Killswitch: Active'
-4. Settings menu:
-    a. Server Port
-    b. client timeout
-    c. How many frames to process per second
-3. Dark/Light mode icons
-
-
-"""
-
 
 class TrayApp():
     def __init__(
