@@ -12,9 +12,6 @@ import io
 
 """
 TODO:
-2. Mode Switch
-    a. when clicked, change the state
-    b. 'Mode: Client'
 3. Killswitch:
     a. 'Killswitch: Active'
 4. Settings menu:
@@ -45,6 +42,7 @@ class TrayApp():
 
         self.client_thread = None
         self.server_thread = None
+        self.killswitch_active = False
 
         img_data = cast(bytes, cairosvg.svg2png(url = icon_url)) # type safety i guess?
         self.img = Image.open(io.BytesIO(img_data))
@@ -56,6 +54,11 @@ class TrayApp():
             menu = pystray.Menu(
                 pystray.MenuItem(lambda text: f'Operation Mode: {self.mode}', self.mode_toggle),
                 pystray.MenuItem('Initialize', self.initialize),
+                pystray.MenuItem(
+                    lambda text: f'Killswitch: {"Active" if self.killswitch_active else "Inactive"}',
+                    self.killswitch_toggle,
+                    visible=lambda item: self.mode == 'Client'
+                ),
                 pystray.MenuItem('Quit UMK', self.quit),
                 )
             )
@@ -74,6 +77,13 @@ class TrayApp():
         print("Operation mode switched to " + self.mode)
         icon.update_menu()
 
+    def killswitch_toggle(self, icon, item):
+        self.killswitch_active = not self.killswitch_active
+        if self.client:
+            self.client.killswitch = self.killswitch_active
+        print(f"Killswitch {'activated: dropping all commands' if self.killswitch_active else 'deactivated: executing commands'}")
+        icon.update_menu()
+
     def initialize(self):
         print(f'Initializing in {self.mode} mode...')
         if self.mode == 'Client':
@@ -86,6 +96,7 @@ class TrayApp():
                 return
 
             self.client = Client()
+            self.client.killswitch = self.killswitch_active
             self.client_thread = threading.Thread(target=self.client.run, daemon=True)
             self.client_thread.start()
 

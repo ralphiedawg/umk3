@@ -106,20 +106,25 @@ class Client:
 
     def beat_heart(self):
         h = Heartbeat(self)
-        while not self.killswitch:
+        while not self._stop_event.is_set():
             try:
-                heartbeat_string = h.heartbeat()
-                self.socket.sendall(heartbeat_string.encode())
-                if self._stop_event.wait(timeout=10):
-                    break
+                if not self.killswitch:
+                    heartbeat_string = h.heartbeat()
+                    self.socket.sendall(heartbeat_string.encode())
+                    if self._stop_event.wait(timeout=10):
+                        break
+                else:
+                    if self._stop_event.wait(timeout=1):
+                        break
             except Exception as e:
-                print(f"Error sending heartbeat: {e}")
+                if not self._stop_event.is_set():
+                    print(f"Error sending heartbeat: {e}")
                 break
 
     def listen_for_command(self):
         self.socket.settimeout(1)
         buffer = ""
-        while not self.killswitch:
+        while not self._stop_event.is_set():
             try:
                 received = self.socket.recv(1024)
                 if not received:
@@ -132,16 +137,19 @@ class Client:
                         jsonStr = json.loads(line)
                         if jsonStr.get('type') == 'command':
                             command = jsonStr['command']
-                            self.receive_command(command.encode())
+                            if self.killswitch:
+                                print(f"Killswitch active: dropping command '{command}'")
+                            else:
+                                self.receive_command(command.encode())
             except socket.timeout:
                 continue
             except Exception as e:
-                print(f"Error listening for command: {e}")
+                if not self._stop_event.is_set():
+                    print(f"Error listening for command: {e}")
                 break
 
     def shutdown(self):
         print("Shutting down client")
-        self.killswitch = True
         self._stop_event.set()
 
         if hasattr(self, 'socket') and self.socket:
