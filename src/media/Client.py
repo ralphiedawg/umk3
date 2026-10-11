@@ -19,6 +19,7 @@ class Client:
         self.deviceType = deviceType
         self.mediaStatus = mediaStatus
         self.killswitch = False
+        self._stop_event = threading.Event()
 
         if self.addr == self.defaultAddr:
             listener = Listener()
@@ -109,7 +110,8 @@ class Client:
             try:
                 heartbeat_string = h.heartbeat()
                 self.socket.sendall(heartbeat_string.encode())
-                time.sleep(10)
+                if self._stop_event.wait(timeout=10):
+                    break
             except Exception as e:
                 print(f"Error sending heartbeat: {e}")
                 break
@@ -137,9 +139,29 @@ class Client:
                 print(f"Error listening for command: {e}")
                 break
 
+    def shutdown(self):
+        print("Shutting down client")
+        self.killswitch = True
+        self._stop_event.set()
+
+        if hasattr(self, 'socket') and self.socket:
+            try:
+                self.socket.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
+                self.socket.close()
+            except Exception:
+                pass
+
+        print("Client shutdown successful")
+        
+
     def run(self):
-        threading.Thread(target=self.listen_for_command, daemon=False).start()
-        threading.Thread(target=self.beat_heart, daemon=False).start()
+        self.command_thread = threading.Thread(target=self.listen_for_command, daemon=True)
+        self.heart_thread = threading.Thread(target=self.beat_heart, daemon=True)
+        self.command_thread.start()
+        self.heart_thread.start()
         
 
 if __name__ == "__main__":
