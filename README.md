@@ -35,9 +35,9 @@ I'm always listening to music or watching youtube on another PC. Instead of havi
         - [x] Shaka to wake,
         - [ ] V for volume,
         - [x] Palm for play/pause
-- [ ] Tray APP via pystray
-    - [ ] Killswitch
-        - [ ] If killswitch active, simply drop all commands
+- [x] Tray APP via pystray
+    - [x] Killswitch
+        - [x] If killswitch active, simply drop all commands
     - [ ] Set Gesture Server Device
 
 (Can you tell I'm used to java OOP?)

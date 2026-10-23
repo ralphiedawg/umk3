@@ -10,6 +10,15 @@ from typing import cast
 import threading
 import io
 
+import sys
+from pathlib import Path
+
+# fix bundle stuff idk bro
+def resource_path(relative_path: str) -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys._MEIPASS) / relative_path
+    return Path(__file__).resolve().parents[2] / relative_path
+
 
 class TrayApp():
     def __init__(
@@ -20,7 +29,7 @@ class TrayApp():
             
         ):
 
-        self.icon_url = icon_url
+        self.icon_url = str(resource_path(icon_url))
         self.mode = mode
         self.server_port = server_port
 
@@ -31,7 +40,7 @@ class TrayApp():
         self.server_thread = None
         self.killswitch_active = False
 
-        img_data = cast(bytes, cairosvg.svg2png(url = icon_url)) # type safety i guess?
+        img_data = cast(bytes, cairosvg.svg2png(url = self.icon_url)) # type safety i guess?
         self.img = Image.open(io.BytesIO(img_data))
 
         self.icon = pystray.Icon(
@@ -71,7 +80,7 @@ class TrayApp():
         print(f"Killswitch {'activated: dropping all commands' if self.killswitch_active else 'deactivated: executing commands'}")
         icon.update_menu()
 
-    def initialize(self):
+    def initialize(self, icon=None, item=None):
         print(f'Initializing in {self.mode} mode...')
         if self.mode == 'Client':
             if self.server:
