@@ -162,6 +162,13 @@ class Client:
         self.heart_thread = threading.Thread(target=self.beat_heart, daemon=True)
         self.command_thread.start()
         self.heart_thread.start()
+        try:
+            while not self._stop_event.wait(timeout=0.25):
+                if not self.command_thread.is_alive() or not self.heart_thread.is_alive():
+                    print("Client connection ended")
+                    break
+        finally:
+            self.shutdown()
         
 
 if __name__ == "__main__":
