@@ -1,3 +1,7 @@
+import multiprocessing
+
+multiprocessing.freeze_support()
+
 import pystray 
 import cairosvg
 
@@ -9,9 +13,12 @@ from src.media.Server import Server
 from typing import cast
 import threading
 import io
+import logging
 
+from src.app_logging import configure_logging
 from src.resource_paths import resource_path
 
+logger = logging.getLogger(__name__)
 
 class TrayApp():
     def __init__(
@@ -55,8 +62,10 @@ class TrayApp():
     def quit(self, icon, item):
         if self.server:
             self.server.shutdown()
+            self.server = None
         if self.client:
             self.client.shutdown()
+            self.client = None
         icon.stop()   
 
     def mode_toggle(self, icon, item):
@@ -84,27 +93,36 @@ class TrayApp():
                 print('Client already running')
                 return
 
-            self.client = Client()
-            self.client.killswitch = self.killswitch_active
-            self.client_thread = threading.Thread(target=self.client.run, daemon=True)
-            self.client_thread.start()
+            try:
+                self.client = Client()
+                self.client.killswitch = self.killswitch_active
+                self.client_thread = threading.Thread(target=self.client.run, daemon=True)
+                self.client_thread.start()
+            except Exception:
+                logger.exception("Failed to initialize client")
+                self.client = None
 
         else:
             if self.client:
                 self.client.shutdown()
                 self.client = None
 
-            if self.server:
+            if self.server_thread and self.server_thread.is_alive():
                 print('Server already running')
                 return
 
-            self.server = Server(port = self.server_port)
-            print('Sever Created')
-            self.server_thread = threading.Thread(target=self.server.run_server, daemon=True)
-            self.server_thread.start()
-            print('Run Command sent')
+            try:
+                self.server = Server(port=self.server_port)
+                self.server_thread = threading.Thread(target=self.server.run_server, daemon=True)
+                self.server_thread.start()
+            except Exception:
+                logger.exception("Failed to initialize server")
+                if self.server:
+                    self.server.shutdown()
+                self.server = None
 
     def run(self):
+        configure_logging()
         self.icon.run()
      
 if __name__ == "__main__":

@@ -9,7 +9,6 @@ from src.media.Heartbeat import Heartbeat
 from src.media import media_controls as controls
 from src.media.recency_arbitration.WrapperHelper import WrapperHelper
 from src.discovery.ServiceRegistry import Listener
-from src.resource_paths import data_path
 
 class Client:
     defaultAddr = '127.0.0.1'
@@ -25,49 +24,41 @@ class Client:
         if self.addr == self.defaultAddr:
             listener = Listener()
             zc = Zeroconf()
-            _ = ServiceBrowser(zc, '_umk._tcp.local.', listener)
-            print('Searching for servers, sleeping for 5 seconds')
-            time.sleep(5)
-            chosen_server = self.test_servers()
+            browser = ServiceBrowser(zc, '_umk._tcp.local.', listener)
+            print('Searching for servers for 5 seconds')
+            try:
+                time.sleep(5)
+                discovered = listener.get_services()
+            finally:
+                browser.cancel()
+                zc.close()
+            candidates = [
+                (address, service['port'])
+                for service in discovered
+                for address in service['addresses']
+            ]
+            chosen_server = self.test_servers(candidates)
             self.addr = chosen_server[0]
             self.port = chosen_server[1]
         
         self.connect()
 
 
-    def test_servers(self) -> tuple[str, int]:
-        server = ('', 0)
-        valid_servers = []
-        with open(data_path('known_services.json'), 'r') as file:
-            data = json.load(file)
-            for i in range(len(data['addresses'])):
-                test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def test_servers(self, candidates: list[tuple[str, int]]) -> tuple[str, int]:
+        for address, port in candidates:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as test_socket:
                 test_socket.settimeout(2)
                 try:
-                    result = test_socket.connect_ex((data['addresses'][i], data['port']))
-                    if result == 0:
-                        print(f"Server at {data['addresses'][i]}:{data['port']} is reachable")
-                        valid_servers.append((data['addresses'][i], data['port']))
-                    else:
-                        print('Server unreachable, moving on')
-                except Exception as e:
-                    print(f'Error testing server: {e}')
-                finally:
-                    test_socket.close()
+                    if test_socket.connect_ex((address, port)) == 0:
+                        print(f"Server at {address}:{port} is reachable")
+                        return address, port
+                except OSError as error:
+                    print(f"Error testing server at {address}:{port}: {error}")
 
-        if len(valid_servers) > 1:
-            print('Multiple Valid Servers found, please select from list')
-            for s in range(len(valid_servers)):
-                ip = valid_servers[s][0]
-                hostname = socket.gethostbyaddr(ip)
-                port = valid_servers[s][1]
-                print(f'{s}: {hostname} with port {port} (IP :{ip})')
-            choice = int(input('Index: '))
-            server = valid_servers[choice]
-        else:
-            server = valid_servers[0]
-
-        return server
+        raise ConnectionError(
+            "No reachable UMK server was found on the local network. "
+            "Start a server and verify both devices are on the same LAN."
+        )
         
 
     def connect(self):
