@@ -37,6 +37,7 @@ class Server():
         self.arbiter = RecencyArbiter()
 
     def on_new_client(self, clientsocket: socket.socket, client_id: int):
+        print(f'New client incoming... socket: {clientsocket} with potential id {client_id}')
         while True:
             try:
                 data = clientsocket.recv(1024)
