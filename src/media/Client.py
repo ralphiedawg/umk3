@@ -9,6 +9,7 @@ from src.media.Heartbeat import Heartbeat
 from src.media import media_controls as controls
 from src.media.recency_arbitration.WrapperHelper import WrapperHelper
 from src.discovery.ServiceRegistry import Listener
+from src.resource_paths import data_path
 
 class Client:
     defaultAddr = '127.0.0.1'
@@ -37,7 +38,7 @@ class Client:
     def test_servers(self) -> tuple[str, int]:
         server = ('', 0)
         valid_servers = []
-        with open('known_services.json', 'r') as file:
+        with open(data_path('known_services.json'), 'r') as file:
             data = json.load(file)
             for i in range(len(data['addresses'])):
                 test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

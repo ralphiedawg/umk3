@@ -4,23 +4,24 @@ import json
 import cv2 as cv
 import mediapipe as mp
 from multiprocessing import Queue
+from src.resource_paths import data_path, resource_path
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-config_path = 'config/gestures.json'
+config_path = resource_path('config/gestures.json')
 #FPS = 60
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
         self.index = cam_index
-        self.model_path = model_path
+        self.model_path = str(resource_path(model_path))
         self.preserve = preserveVideo
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
         HandLandmarkerOpts = mp.tasks.vision.HandLandmarkerOptions
         VisionRunningMode = mp.tasks.vision.RunningMode
         self.opts = HandLandmarkerOpts(
-            base_options=BaseOptions(model_asset_path=model_path),
+            base_options=BaseOptions(model_asset_path=self.model_path),
             running_mode=VisionRunningMode.LIVE_STREAM,
             result_callback=self.print_result
         )
@@ -133,9 +134,10 @@ class Landmarker():
         height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
         # I love geeksforgeeks
         fourcc = cv.VideoWriter.fourcc(*'mp4v')
-        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
+        self.output_video_path = data_path('out.mp4')
+        self.out = cv.VideoWriter(str(self.output_video_path), fourcc, 20.0, (width, height))
 
-        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
+        base_opts = python.BaseOptions(model_asset_path=self.model_path)
         opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
 
         detector = vision.HandLandmarker.create_from_options(opts)
@@ -177,7 +179,7 @@ class Landmarker():
         cv.destroyAllWindows()
         if not self.preserve:
             print('Deleting output video, this can behavior can be disabled via the flag --preserveOutput')
-            os.remove('out.mp4')
+            self.output_video_path.unlink(missing_ok=True)
 
 if __name__ == "__main__":
     L = Landmarker()

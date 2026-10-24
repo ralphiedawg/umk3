@@ -10,14 +10,7 @@ from typing import cast
 import threading
 import io
 
-import sys
-from pathlib import Path
-
-# fix bundle stuff idk bro
-def resource_path(relative_path: str) -> Path:
-    if getattr(sys, "frozen", False):
-        return Path(sys._MEIPASS) / relative_path
-    return Path(__file__).resolve().parents[2] / relative_path
+from src.resource_paths import resource_path
 
 
 class TrayApp():

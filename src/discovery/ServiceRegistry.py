@@ -1,6 +1,7 @@
 import socket
 import json
 from zeroconf import ServiceBrowser, ServiceInfo, Zeroconf, ServiceListener
+from src.resource_paths import data_path
 
 class ServiceRegistry():
     def __init__(self, 
@@ -47,7 +48,7 @@ class Listener(ServiceListener):
         
         print(json.dumps(data))
 
-        with open('known_services.json', 'w') as file:
+        with open(data_path('known_services.json'), 'w') as file:
             json.dump(data, file, indent = 4)
 
     def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
@@ -75,4 +76,3 @@ if __name__ == "__main__":
             input("Browsing for services... Press Enter to stop.\n")
         finally:
             zc.close()
-
