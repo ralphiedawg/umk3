@@ -4,23 +4,24 @@ import json
 import cv2 as cv
 import mediapipe as mp
 from multiprocessing import Queue
+from src.resource_paths import data_path, resource_path
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
-config_path = 'config/gestures.json'
+config_path = resource_path('config/gestures.json')
 #FPS = 60
 class Landmarker():
     def __init__(self, cam_index:int = 0, model_path:str = 'hand_landmarker.task', preserveVideo:bool = False):
         self.index = cam_index
-        self.model_path = model_path
+        self.model_path = str(resource_path(model_path))
         self.preserve = preserveVideo
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
         HandLandmarkerOpts = mp.tasks.vision.HandLandmarkerOptions
         VisionRunningMode = mp.tasks.vision.RunningMode
         self.opts = HandLandmarkerOpts(
-            base_options=BaseOptions(model_asset_path=model_path),
+            base_options=BaseOptions(model_asset_path=self.model_path),
             running_mode=VisionRunningMode.LIVE_STREAM,
             result_callback=self.print_result
         )
@@ -126,58 +127,69 @@ class Landmarker():
         print(commands.get(pose, "No command found"))
         return commands.get(pose, "No command found")
 
-    def open_cam(self, command_queue: Queue = None):
+    def open_cam(self, command_queue: Queue = None, stop_event=None):
         """Open camera at the previously chosen index & begin gesture recognition"""
         self.cam = cv.VideoCapture(self.index)
-        width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
-        height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
-        # I love geeksforgeeks
-        fourcc = cv.VideoWriter.fourcc(*'mp4v')
-        self.out = cv.VideoWriter('out.mp4', fourcc, 20.0, (width, height))
+        if not self.cam.isOpened():
+            self.cam.release()
+            raise RuntimeError(
+                f'Could not open camera {self.index}; check macOS Camera privacy permission for UMK '
+                'and verify a camera is available.'
+            )
 
-        base_opts = python.BaseOptions(model_asset_path='hand_landmarker.task')
-        opts = vision.HandLandmarkerOptions(base_options = base_opts, num_hands = 2)
+        detector = None
+        self.output_video_path = None
+        self.out = None
+        try:
+            width = int(self.cam.get(cv.CAP_PROP_FRAME_WIDTH))
+            height = int(self.cam.get(cv.CAP_PROP_FRAME_HEIGHT))
+            fourcc = cv.VideoWriter.fourcc(*'mp4v')
+            self.output_video_path = data_path('out.mp4')
+            self.out = cv.VideoWriter(str(self.output_video_path), fourcc, 20.0, (width, height))
 
-        detector = vision.HandLandmarker.create_from_options(opts)
+            base_opts = python.BaseOptions(model_asset_path=self.model_path)
+            opts = vision.HandLandmarkerOptions(base_options=base_opts, num_hands=2)
+            detector = vision.HandLandmarker.create_from_options(opts)
 
-        while True:
-            ret, raw = self.cam.read()
-            if not ret:
-                break
-            self.out.write(raw)
+            while stop_event is None or not stop_event.is_set():
+                ret, raw = self.cam.read()
+                if not ret:
+                    break
+                self.out.write(raw)
 
-            raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
+                raw_rgb = cv.cvtColor(raw, cv.COLOR_BGR2RGB)
+                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=raw_rgb)
+                res = detector.detect(mp_image)
+                frame = self.draw_landmarks_on_image(raw_rgb, res)
+                cv.imshow('Video', frame)
 
-            res = detector.detect(mp_image)
-            frame = self.draw_landmarks_on_image(raw_rgb, res)
-            #time.sleep(1/FPS)
-            cv.imshow('Video', frame)
+                status_fingers = self.fingers_status(res)
+                num_hands = len(status_fingers)
+                try:
+                    if num_hands >= 1:
+                        first = self.check_pose(status_fingers, 0)
+                        command_queue.put(self.pose_to_cmd(first))
+                    if num_hands >= 2:
+                        second = self.check_pose(status_fingers, 1)
+                        command_queue.put(self.pose_to_cmd(second))
+                except IndexError:
+                    pass
 
-            status_fingers = self.fingers_status(res)
-            num_hands = len(status_fingers)
-            try:
-                if num_hands >= 1:
-                    first = self.check_pose(status_fingers, 0)
-                    command_queue.put(self.pose_to_cmd(first))
-                if num_hands >= 2:
-                    second = self.check_pose(status_fingers, 1)
-                    command_queue.put(self.pose_to_cmd(second))
-            except IndexError:
-                # Most likely because hands offscreen, ignore
-                pass
-
-            if cv.waitKey(1) == ord('q'):
-                break
-        self.close_cam()
+                if cv.waitKey(1) == ord('q'):
+                    break
+        finally:
+            if detector is not None:
+                detector.close()
+            self.close_cam()
 
     def close_cam(self):
         self.cam.release()
-        self.out.release()
+        if self.out is not None:
+            self.out.release()
         cv.destroyAllWindows()
-        if not self.preserve:
+        if not self.preserve and self.output_video_path is not None:
             print('Deleting output video, this can behavior can be disabled via the flag --preserveOutput')
-            os.remove('out.mp4')
+            self.output_video_path.unlink(missing_ok=True)
 
 if __name__ == "__main__":
     L = Landmarker()

@@ -1,5 +1,5 @@
 import socket
-import json
+import threading
 from zeroconf import ServiceBrowser, ServiceInfo, Zeroconf, ServiceListener
 
 class ServiceRegistry():
@@ -34,29 +34,33 @@ class ServiceRegistry():
         self.zc.close()
 
 class Listener(ServiceListener):
+    def __init__(self):
+        self.services = {}
+        self._lock = threading.Lock()
+
     def add_service(self, zc: Zeroconf, type_: str, name: str) -> None:
+        self.update_service(zc, type_, name)
+
+    def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
         info = zc.get_service_info(type_, name) 
         if not info:
             return
 
-        data = {
+        service = {
             'serviceName': name,
             'addresses': info.parsed_addresses(),
-            'port': info.port
+            'port': info.port,
         }
-        
-        print(json.dumps(data))
-
-        with open('known_services.json', 'w') as file:
-            json.dump(data, file, indent = 4)
-
-    def update_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        #return super().update_service(zc, type_, name)
-        pass
+        with self._lock:
+            self.services[name] = service
 
     def remove_service(self, zc: Zeroconf, type_: str, name: str) -> None:
-        #return super().remove_service(zc, type_, name)
-        pass
+        with self._lock:
+            self.services.pop(name, None)
+
+    def get_services(self):
+        with self._lock:
+            return list(self.services.values())
 
 if __name__ == "__main__":
     mode = input("Mode: ")
@@ -75,4 +79,3 @@ if __name__ == "__main__":
             input("Browsing for services... Press Enter to stop.\n")
         finally:
             zc.close()
-
