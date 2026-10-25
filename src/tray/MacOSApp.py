@@ -2,6 +2,7 @@ import rumps
 
 from src.media.Client import Client
 from src.media.Server import Server
+from src.resource_paths import resource_path
 
 import threading
 
@@ -9,7 +10,7 @@ class MacOSApp(rumps.App):
     def __init__(self):
         super().__init__(
             "UMK",
-            icon="src/tray/icons/umklogoTemplate.png",
+            icon=str(resource_path("src/tray/icons/UMK64.png")),
             template=True,
             quit_button="Quit",
         )

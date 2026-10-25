@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class TrayApp():
     def __init__(
             self, 
-            icon_url: str = 'icons/UMK64.png',
+            icon_url: str = 'src/tray/icons/UMK64.png',
             mode: str = 'Client',
             server_port: int = 2022
             
@@ -122,7 +122,7 @@ class TrayApp():
         self.icon.run()
      
 if __name__ == "__main__":
-    T = TrayApp('icons/UMKSVG24.svg')
+    T = TrayApp()
     T.run()
     #s = Server()
     #s.run_server()

@@ -8,7 +8,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('config', 'config'),
-        ('icons', 'icons'),
+        ('src/tray/icons', 'src/tray/icons'),
         ('hand_landmarker.task', '.'),
         *collect_data_files('mediapipe.tasks.c'),
     ],
@@ -38,7 +38,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['icons/UMK64.png'],  # <-- Updated path
+    icon=['src/tray/icons/UMK64.png'],
 )
 coll = COLLECT(
     exe,
@@ -52,7 +52,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='UMK.app',
-    icon='icons/UMK64.png',  # <-- Updated path
+    icon='src/tray/icons/UMK64.png',
     bundle_identifier='com.umk.app',
     info_plist={
         'NSLocalNetworkUsageDescription': 'UMK requires access to the local network to discover and communicate with LAN devices.',

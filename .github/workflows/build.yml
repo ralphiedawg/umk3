@@ -10,7 +10,7 @@ on:
       - "requirements.txt"
       - "src/**"
       - "config/**"
-      - "icons/**"
+      - "src/tray/icons/**"
       - "hand_landmarker.task"
 
 jobs:

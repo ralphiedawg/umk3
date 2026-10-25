@@ -11,7 +11,7 @@ a = Analysis(
     binaries=collect_dynamic_libs(mediapipe_package),
     datas=[
         ("config", "config"),
-        ("icons", "icons"),
+        ("src/tray/icons", "src/tray/icons"),
         ("hand_landmarker.task", "."),
         *collect_data_files(mediapipe_package),
     ],
