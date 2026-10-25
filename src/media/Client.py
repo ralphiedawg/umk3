@@ -20,6 +20,7 @@ class Client:
         self.mediaStatus = mediaStatus
         self.killswitch = False
         self._stop_event = threading.Event()
+        self._media_status_warning_logged = False
 
         if self.addr == self.defaultAddr:
             listener = Listener()
@@ -92,9 +93,15 @@ class Client:
         return status
 
     def play_status(self):
-        if WrapperHelper.agnostic_media_status():
-            return 'playing'
-        return 'not_playing'
+        try:
+            if WrapperHelper.agnostic_media_status():
+                return 'playing'
+            return 'not_playing'
+        except Exception as error:
+            if not self._media_status_warning_logged:
+                print(f"Media status detection failed; reporting not_playing: {error}")
+                self._media_status_warning_logged = True
+            return 'not_playing'
 
     def beat_heart(self):
         h = Heartbeat(self)

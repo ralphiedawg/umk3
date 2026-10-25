@@ -23,11 +23,11 @@ pycparser==3.0
 pyinstaller==6.22.3
 pyinstaller-hooks-contrib==2026.9
 pynput==1.8.1
-pyobjc-core==12.1
-pyobjc-framework-ApplicationServices==12.1
-pyobjc-framework-Cocoa==12.1
-pyobjc-framework-CoreText==12.1
-pyobjc-framework-Quartz==12.1
+pyobjc-core==12.1; sys_platform == "darwin"
+pyobjc-framework-ApplicationServices==12.1; sys_platform == "darwin"
+pyobjc-framework-Cocoa==12.1; sys_platform == "darwin"
+pyobjc-framework-CoreText==12.1; sys_platform == "darwin"
+pyobjc-framework-Quartz==12.1; sys_platform == "darwin"
 pyparsing==3.3.2
 pystray==0.19.5
 python-dateutil==2.9.0.post0
@@ -38,3 +38,4 @@ tinycss2==1.5.1
 webencodings==0.6.1
 websockets==16.0
 zeroconf==0.148.0
+winsdk==1.0.0b10; sys_platform == "win32"

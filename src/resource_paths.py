@@ -1,3 +1,5 @@
+import os
+import platform
 import sys
 from pathlib import Path
 
@@ -12,7 +14,14 @@ def resource_path(relative_path: str) -> Path:
 
 def data_path(relative_path: str) -> Path:
     if getattr(sys, "frozen", False):
-        base_path = Path.home() / "Library" / "Application Support" / "UMK"
+        if platform.system() == "Windows":
+            local_app_data = os.environ.get("LOCALAPPDATA")
+            if local_app_data:
+                base_path = Path(local_app_data) / "UMK"
+            else:
+                base_path = Path.home() / "AppData" / "Local" / "UMK"
+        else:
+            base_path = Path.home() / "Library" / "Application Support" / "UMK"
     else:
         base_path = Path.cwd()
     path = base_path / relative_path

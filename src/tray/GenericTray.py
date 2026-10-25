@@ -3,16 +3,13 @@ import multiprocessing
 multiprocessing.freeze_support()
 
 import pystray 
-import cairosvg
 
-from PIL import Image, ImageDraw
+from PIL import Image
 
 from src.media.Client import Client
 from src.media.Server import Server
 
-from typing import cast
 import threading
-import io
 import logging
 
 from src.app_logging import configure_logging
@@ -23,7 +20,7 @@ logger = logging.getLogger(__name__)
 class TrayApp():
     def __init__(
             self, 
-            icon_url: str = 'icons/UMKSVG24.svg',
+            icon_url: str = 'icons/UMK64.png',
             mode: str = 'Client',
             server_port: int = 2022
             
@@ -40,8 +37,7 @@ class TrayApp():
         self.server_thread = None
         self.killswitch_active = False
 
-        img_data = cast(bytes, cairosvg.svg2png(url = self.icon_url)) # type safety i guess?
-        self.img = Image.open(io.BytesIO(img_data))
+        self.img = Image.open(self.icon_url)
 
         self.icon = pystray.Icon(
             name = 'UMK3',
